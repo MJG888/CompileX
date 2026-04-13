@@ -1,0 +1,255 @@
+/* ═══════════════════════════════════════════
+   CompileX – Global Design System
+   Dark glassmorphism IDE aesthetic
+═══════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ─── CSS Variables: Dark Theme ─── */
+:root,
+.dark {
+  --accent: #7c3aed;
+  --accent-light: #a78bfa;
+  --accent-dim: rgba(124, 58, 237, 0.15);
+  --teal: #06d6a0;
+  --teal-dim: rgba(6, 214, 160, 0.15);
+
+  --surface-0: #0a0a14;
+  --surface-1: #0f0f1e;
+  --surface-2: #161628;
+  --surface-3: #1e1e35;
+  --surface-glass: rgba(15, 15, 30, 0.85);
+
+  --border: rgba(255, 255, 255, 0.07);
+  --border-hover: rgba(255, 255, 255, 0.14);
+
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #4b5568;
+}
+
+/* ─── CSS Variables: Light Theme ─── */
+.light {
+  --accent: #7c3aed;
+  --accent-light: #6d28d9;
+  --accent-dim: rgba(124, 58, 237, 0.08);
+  --teal: #059669;
+  --teal-dim: rgba(5, 150, 105, 0.1);
+
+  --surface-0: #ffffff;
+  --surface-1: #f8fafc;
+  --surface-2: #f1f5f9;
+  --surface-3: #e2e8f0;
+  --surface-glass: rgba(248, 250, 252, 0.9);
+
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(0, 0, 0, 0.15);
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+}
+
+/* ─── Reset & Base ─── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── App Layout ─── */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  background: var(--surface-0);
+  color: var(--text-primary);
+  overflow: hidden;
+  transition: background 0.3s ease, color 0.3s ease;
+  outline: none;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ─── Editor Area ─── */
+.editor-area {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ─── File Tabs ─── */
+.file-tabs {
+  display: flex;
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+.file-tab {
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+.file-tab.active {
+  background: var(--surface-0);
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--accent);
+}
+.file-tab:hover:not(.active) {
+  background: var(--surface-2);
+  color: var(--text-secondary);
+}
+.file-tab-close {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+}
+.file-tab-close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+.add-file-btn {
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.add-file-btn:hover {
+  color: var(--accent);
+}
+
+.editor-pane-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.editor-pane {
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: height 0.01s;
+}
+
+.console-pane {
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: height 0.01s;
+}
+
+/* ─── Draggable Divider ─── */
+.panel-divider {
+  height: 5px;
+  background: var(--border);
+  cursor: row-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+  position: relative;
+  z-index: 10;
+}
+
+.panel-divider:hover {
+  background: var(--accent-dim);
+}
+
+.panel-divider:hover .divider-handle span {
+  background: var(--accent);
+}
+
+.divider-handle {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.divider-handle span {
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--border-hover);
+  transition: background 0.2s;
+}
+
+/* ─── Scrollbars ─── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-3) transparent;
+}
+
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 3px; }
+*::-webkit-scrollbar-thumb:hover { background: var(--accent-dim); }
+
+/* ─── Animated Background Gradient (dark only) ─── */
+.dark .app::before {
+  content: '';
+  position: fixed;
+  top: -200px;
+  right: -200px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  animation: float 8s ease-in-out infinite;
+}
+
+.dark .app::after {
+  content: '';
+  position: fixed;
+  bottom: -150px;
+  left: -100px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(6, 214, 160, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  animation: float 10s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(20px, -20px); }
+  66% { transform: translate(-15px, 15px); }
+}

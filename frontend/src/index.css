@@ -1,0 +1,5 @@
+/* Reset index.css — App.css handles everything */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+body { margin: 0; }
