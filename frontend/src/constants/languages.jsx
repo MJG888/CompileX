@@ -70,6 +70,52 @@ int main() {
 }
 `,
   },
+  {
+    id: 'c',
+    label: 'C',
+    judge0Id: 50,
+    monacoId: 'c',
+    icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3-9c0 1.66-1.34 3-3 3s-3-1.34-3-3 1.34-3 3-3 3 1.34 3 3z"/></svg>,
+    color: '#A8B9CC',
+    defaultCode: `// C Standard Implementation
+#include <stdio.h>
+
+int main() {
+    const char* env = "CompileX 2.0";
+    printf("Runtime Environment: %s\\n", env);
+
+    // Iterative Process
+    for (int i = 0; i < 5; i++) {
+        printf("  Segment [%d] Ready\\n", i);
+    }
+    return 0;
+}
+`,
+  },
+  {
+    id: 'java',
+    label: 'Java',
+    judge0Id: 62,
+    monacoId: 'java',
+    icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M21 16.5c0 .38-.21.71-.53.88l-7.97 4.43c-.16.09-.33.14-.5.14s-.34-.05-.5-.14l-7.97-4.43c-.32-.17-.53-.5-.53-.88V7.5c0-.38.21-.71.53-.88l7.97-4.43c.16-.09.33-.14.5-.14s.34.05.5.14l7.97 4.43c.32.17.53.5.53.88v9zM12 4.04l-6.39 3.55L12 11.14l6.39-3.55L12 4.04zM5 15.61l6.5 3.61v-7.14L5 8.47v7.14zm14 0V8.47l-6.5 3.61v7.14l6.5-3.61z"/></svg>,
+    color: '#ED8B00',
+    defaultCode: `// Java Enterprise Implementation
+public class Main {
+    public static void main(String[] args) {
+        String system = "CompileX Native";
+        System.out.println("System Initialized: " + system);
+
+        // Logic Verification
+        int[] stream = {10, 20, 30, 40, 50};
+        System.out.print("Stream Data: ");
+        for (int val : stream) {
+            System.out.print(val + " ");
+        }
+        System.out.println();
+    }
+}
+`,
+  },
 ];
 
 export const getLanguageById = (id) => LANGUAGES.find((l) => l.id === id) || LANGUAGES[0];
