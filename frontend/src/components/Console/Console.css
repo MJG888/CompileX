@@ -3,7 +3,7 @@
   flex-direction: column;
   height: 100%;
   background: var(--surface-0);
-  overflow: visible;
+  overflow: hidden;
 }
 
 /* Header */
@@ -94,7 +94,7 @@
 /* Body */
 .console-body {
   flex: 1;
-  overflow: visible;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }

@@ -118,8 +118,8 @@ export const explainCode = async (contextBundle, language) => {
   }
   const formattedCode = stringifyContext(contextBundle, language);
   const fullPrompt =
-    'You are a patient programming teacher. Explain this ' + language +
-    ' project clearly. Discuss the architecture across files if applicable, then break it down line by line or section by section. Use technical, precise language.\n\n' +
+    'You are a technical programming expert. Explain this ' + language +
+    ' project clearly and professionally. Discuss the architecture across files if applicable, then break it down line by line or section by section. Use technical, precise language.\n\n' +
     formattedCode;
   const text = await callAI(fullPrompt);
   return { text, type: 'text' };
