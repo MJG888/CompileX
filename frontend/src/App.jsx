@@ -29,8 +29,8 @@ export default function App() {
   const [isRunning, setIsRunning] = useState(false);
   const [isInteractive, setIsInteractive] = useState(false);
   const [aiPanelOpen, setAIPanelOpen] = useState(false);
-  const [consoleHeight, setConsoleHeight] = useState(250); // px height for Console
-  const [aiPanelWidth, setAiPanelWidth] = useState(360); // px width for AI panel
+  const [verticalSplit, setVerticalSplit] = useState(70); // % for Editor (0-100)
+  const [horizontalSplit, setHorizontalSplit] = useState(25); // % for AI Panel (0-100)
   const isDraggingVertical = useRef(false);
   const isDraggingHorizontal = useRef(false);
   const bodyRef = useRef(null);
@@ -166,10 +166,7 @@ export default function App() {
 
   // Vertical resize: Editor vs Console
   const handleVerticalDividerMouseDown = (e) => {
-    // Only prevent default for mouse to stop text selection, 
-    // but on touch we might need to be careful with zoom.
     if (e.type === 'mousedown') e.preventDefault();
-    
     isDraggingVertical.current = true;
     setIsResizing(true);
     document.body.style.cursor = 'row-resize';
@@ -181,9 +178,9 @@ export default function App() {
       if (!isDraggingVertical.current || !containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
       const y = getClientY(ev);
-      const newHeight = rect.bottom - y;
-      const clamped = Math.min(Math.max(newHeight, 80), rect.height - 100);
-      setConsoleHeight(clamped);
+      const percentage = ((y - rect.top) / rect.height) * 100;
+      const clamped = Math.min(Math.max(percentage, 15), 85);
+      setVerticalSplit(clamped);
     };
 
     const onEnd = () => {
@@ -206,7 +203,6 @@ export default function App() {
   // Horizontal resize: Main Area vs AI Panel
   const handleHorizontalDividerMouseDown = (e) => {
     if (e.type === 'mousedown') e.preventDefault();
-    
     isDraggingHorizontal.current = true;
     setIsResizing(true);
     document.body.style.cursor = 'col-resize';
@@ -218,9 +214,9 @@ export default function App() {
       if (!isDraggingHorizontal.current || !bodyRef.current) return;
       const rect = bodyRef.current.getBoundingClientRect();
       const x = getClientX(ev);
-      const width = rect.right - x;
-      const clamped = Math.min(Math.max(width, 250), rect.width * 0.6);
-      setAiPanelWidth(clamped);
+      const percentage = ((rect.right - x) / rect.width) * 100;
+      const clamped = Math.min(Math.max(percentage, 15), 50);
+      setHorizontalSplit(clamped);
     };
 
     const onEnd = () => {
@@ -264,9 +260,9 @@ export default function App() {
       {/* Main layout */}
       <div className={`app-body ${isResizing ? 'resizing' : ''}`} ref={bodyRef}>
         {/* Editor + Console column */}
-        <div className="editor-area" ref={containerRef}>
-          {/* Editor Pane (Flex fill) */}
-          <div className="editor-pane-container" style={{ flex: 1 }}>
+        <div className="editor-area" ref={containerRef} style={{ flex: aiPanelOpen ? (100 - horizontalSplit) : 100 }}>
+          {/* Editor Pane (Flex basis) */}
+          <div className="editor-pane-container" style={{ flex: `0 0 ${verticalSplit}%`, minHeight: '100px' }}>
             <div className="file-tabs">
               {activeLangFiles.map(f => (
                 <button
@@ -311,8 +307,8 @@ export default function App() {
             </div>
           </div>
 
-          {/* Output Console (Fixed Height state) */}
-          <div className="console-pane" style={{ height: `${consoleHeight}px`, minHeight: '80px' }}>
+          {/* Output Console (Flex fill) */}
+          <div className="console-pane" style={{ flex: 1, minHeight: '80px' }}>
             <Console
               terminalData={terminalData}
               result={result}
@@ -335,7 +331,7 @@ export default function App() {
 
         {/* AI Panel */}
         {aiPanelOpen && (
-          <div className="ai-panel-wrapper" style={{ width: `${aiPanelWidth}px` }}>
+          <div className="ai-panel-wrapper" style={{ flex: `0 0 ${horizontalSplit}%` }}>
             <AIPanel
                isOpen={aiPanelOpen}
                code={code}
