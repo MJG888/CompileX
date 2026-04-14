@@ -60,7 +60,8 @@
 html, body, #root {
   height: 100%;
   width: 100%;
-  overflow: hidden;
+  /* Removed overflow: hidden to allow browser-level interactions if needed, 
+     but keeping the app container constrained. */
 }
 
 body {
@@ -76,12 +77,14 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh; /* Dynamic viewport height for mobile */
   width: 100vw;
   background: var(--surface-0);
   color: var(--text-primary);
   overflow: hidden;
   transition: background 0.3s ease, color 0.3s ease;
   outline: none;
+  position: relative;
 }
 
 .app-body {
@@ -97,6 +100,7 @@ body {
   flex-direction: column;
   flex: 1;
   min-width: 0;
+  min-height: 0;
   overflow: hidden;
   position: relative;
 }
@@ -159,26 +163,23 @@ body {
 .editor-pane-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  min-height: 0;
 }
 
 .editor-pane {
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
-  flex-shrink: 0;
-  transition: height 0.01s;
 }
 
 .console-pane {
+  min-height: 0;
   overflow: hidden;
-  flex-shrink: 0;
-  transition: height 0.01s;
 }
 
-/* ─── Draggable Divider ─── */
+/* ─── Draggable Dividers ─── */
 .panel-divider {
-  height: 5px;
   background: var(--border);
-  cursor: row-resize;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -186,6 +187,18 @@ body {
   transition: background 0.2s;
   position: relative;
   z-index: 10;
+}
+
+.panel-divider.vertical {
+  height: 6px;
+  width: 100%;
+  cursor: row-resize;
+}
+
+.panel-divider.horizontal {
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
 }
 
 .panel-divider:hover {
@@ -202,12 +215,23 @@ body {
   align-items: center;
 }
 
+.panel-divider.vertical .divider-handle { flex-direction: row; }
+.panel-divider.horizontal .divider-handle { flex-direction: column; }
+
 .divider-handle span {
-  width: 22px;
-  height: 2px;
   border-radius: 2px;
   background: var(--border-hover);
   transition: background 0.2s;
+}
+
+.panel-divider.vertical .divider-handle span {
+  width: 24px;
+  height: 2px;
+}
+
+.panel-divider.horizontal .divider-handle span {
+  width: 2px;
+  height: 24px;
 }
 
 /* ─── Scrollbars ─── */
@@ -246,6 +270,42 @@ body {
   pointer-events: none;
   z-index: 0;
   animation: float 10s ease-in-out infinite reverse;
+}
+
+/* ─── Mobile Responsiveness ─── */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 0.75rem;
+    height: 50px;
+  }
+  .logo-text { font-size: 1rem; }
+  .logo-badge { display: none; }
+  
+  .language-selector { min-width: 80px; font-size: 0.75rem; }
+  .btn-run { padding: 0 0.75rem; font-size: 0.75rem; }
+  .btn-run span { display: none; } /* Hide "Run" text on mobile */
+  
+  .file-tab { padding: 6px 10px; font-size: 12px; }
+  
+  /* On very small screens, maybe stack buttons */
+  .navbar-actions { gap: 0.25rem; }
+  .btn-icon span { display: none; } /* Hide button labels on mobile */
+}
+
+@media (max-width: 480px) {
+  .app-body {
+    flex-direction: column; /* Stack editor and AI panel if not enough space */
+  }
+  
+  .panel-divider.horizontal {
+    display: none; /* Hide horizontal resizer on mobile */
+  }
+  
+  .ai-panel {
+    width: 100% !important;
+    max-width: none;
+    height: 50%;
+  }
 }
 
 @keyframes float {

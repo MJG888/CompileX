@@ -30,7 +30,10 @@ export default function App() {
   const [isInteractive, setIsInteractive] = useState(false);
   const [aiPanelOpen, setAIPanelOpen] = useState(false);
   const [consoleSize, setConsoleSize] = useState(35); // % of vertical split
-  const isDragging = useRef(false);
+  const [aiPanelWidth, setAiPanelWidth] = useState(360); // px width for AI panel
+  const isDraggingVertical = useRef(false);
+  const isDraggingHorizontal = useRef(false);
+  const bodyRef = useRef(null);
   const containerRef = useRef(null);
 
   // Derived active file properties
@@ -160,23 +163,50 @@ export default function App() {
     [handleRun]
   );
 
-  // Draggable divider for resizing panels
-  const handleDividerMouseDown = (e) => {
+  // Vertical resize: Editor vs Console
+  const handleVerticalDividerMouseDown = (e) => {
     e.preventDefault();
-    isDragging.current = true;
+    isDraggingVertical.current = true;
     document.body.style.cursor = 'row-resize';
     document.body.style.userSelect = 'none';
 
     const onMouseMove = (ev) => {
-      if (!isDragging.current || !containerRef.current) return;
+      if (!isDraggingVertical.current || !containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
       const ratio = ((ev.clientY - rect.top) / rect.height) * 100;
-      const clamped = Math.min(Math.max(ratio, 20), 80);
+      const clamped = Math.min(Math.max(ratio, 15), 85);
       setConsoleSize(100 - clamped);
     };
 
     const onMouseUp = () => {
-      isDragging.current = false;
+      isDraggingVertical.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  };
+
+  // Horizontal resize: Main Area vs AI Panel
+  const handleHorizontalDividerMouseDown = (e) => {
+    e.preventDefault();
+    isDraggingHorizontal.current = true;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    const onMouseMove = (ev) => {
+      if (!isDraggingHorizontal.current || !bodyRef.current) return;
+      const rect = bodyRef.current.getBoundingClientRect();
+      const width = rect.right - ev.clientX;
+      const clamped = Math.min(Math.max(width, 250), rect.width * 0.5);
+      setAiPanelWidth(clamped);
+    };
+
+    const onMouseUp = () => {
+      isDraggingHorizontal.current = false;
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
       window.removeEventListener('mousemove', onMouseMove);
@@ -209,7 +239,7 @@ export default function App() {
       />
 
       {/* Main layout */}
-      <div className="app-body">
+      <div className="app-body" ref={bodyRef}>
         {/* Editor + Console column */}
         <div className="editor-area" ref={containerRef}>
           {/* File Tabs UI & Monaco Editor */}
@@ -241,7 +271,7 @@ export default function App() {
                 </svg>
               </button>
             </div>
-            <div className="editor-pane" style={{ flex: 1 }}>
+            <div className="editor-pane">
               <CodeEditor
                 value={code}
                 language={getLanguageById(selectedLanguage).monacoId}
@@ -251,8 +281,8 @@ export default function App() {
             </div>
           </div>
 
-          {/* Draggable Divider */}
-          <div className="panel-divider" onMouseDown={handleDividerMouseDown}>
+          {/* Draggable Vertical Divider */}
+          <div className="panel-divider vertical" onMouseDown={handleVerticalDividerMouseDown}>
             <div className="divider-handle">
               <span /><span /><span />
             </div>
@@ -271,17 +301,28 @@ export default function App() {
           </div>
         </div>
 
+        {/* Draggable Horizontal Divider (only if AI open) */}
+        {aiPanelOpen && (
+          <div className="panel-divider horizontal" onMouseDown={handleHorizontalDividerMouseDown}>
+            <div className="divider-handle">
+              <span /><span /><span />
+            </div>
+          </div>
+        )}
+
         {/* AI Panel */}
         {aiPanelOpen && (
-          <AIPanel
-            isOpen={aiPanelOpen}
-            code={code}
-            files={activeLangFiles}
-            language={selectedLanguage}
-            execError={execError}
-            onInsertCode={handleInsertCode}
-            onClose={() => setAIPanelOpen(false)}
-          />
+          <div style={{ '--ai-panel-width': `${aiPanelWidth}px` }}>
+            <AIPanel
+               isOpen={aiPanelOpen}
+               code={code}
+               files={activeLangFiles}
+               language={selectedLanguage}
+               execError={execError}
+               onInsertCode={handleInsertCode}
+               onClose={() => setAIPanelOpen(false)}
+            />
+          </div>
         )}
       </div>
 

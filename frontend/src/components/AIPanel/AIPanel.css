@@ -1,14 +1,30 @@
 .ai-panel {
   display: flex;
   flex-direction: column;
-  width: 360px;
-  min-width: 320px;
+  width: var(--ai-panel-width, 360px);
+  min-width: 200px;
+  max-width: 80vw;
   height: 100%;
   background: var(--surface-1);
   border-left: 1px solid var(--border);
   overflow: hidden;
   animation: slideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   flex-shrink: 0;
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .ai-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 85% !important;
+    max-width: 400px;
+    height: 100%;
+    z-index: 1000;
+    box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+    border-left: none;
+  }
 }
 
 @keyframes slideIn {
