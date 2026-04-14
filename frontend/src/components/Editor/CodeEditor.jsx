@@ -19,15 +19,15 @@ const defineTheme = (monaco) => {
       { token: 'delimiter', foreground: '89ddff' },
     ],
     colors: {
-      'editor.background': '#0d0d1a',
+      'editor.background': '#000000',
       'editor.foreground': '#e2e8f0',
-      'editor.lineHighlightBackground': '#1a1a2e',
+      'editor.lineHighlightBackground': '#111111',
       'editor.selectionBackground': '#7c3aed33',
       'editor.inactiveSelectionBackground': '#7c3aed1a',
       'editorLineNumber.foreground': '#3d4461',
       'editorLineNumber.activeForeground': '#7c3aed',
       'editorCursor.foreground': '#06d6a0',
-      'editorGutter.background': '#0d0d1a',
+      'editorGutter.background': '#000000',
       'editorWidget.background': '#1a1a2e',
       'editorWidget.border': '#2d2d4e',
       'editorSuggestWidget.background': '#1a1a2e',
@@ -86,7 +86,7 @@ export default function CodeEditor({ value, language, theme, onChange }) {
 
   const editorOptions = {
     fontSize: 14,
-    minimap: { enabled: true },
+    minimap: { enabled: false },
     scrollBeyondLastLine: false,
     automaticLayout: true,
     theme: theme === 'dark' ? 'vs-dark' : 'vs-light',
