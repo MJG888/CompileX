@@ -120,6 +120,10 @@ export default function CodeEditor({ value, language, theme, onChange }) {
     links: true,
     colorDecorators: true,
     'semanticHighlighting.enabled': true,
+    formatOnPaste: true,
+    autoIndent: 'full',
+    detectIndentation: true,
+    trimAutoWhitespace: true
   };
 
   return (

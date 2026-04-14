@@ -73,13 +73,84 @@ function calculateStats(result, startTime) {
 }
 
 export const executeInteractive = async (data, socket) => {
-    // Local interactive spawning disabled to ensure environment independence
-    // and to follow the rule: "Do NOT use local system commands"
-    socket.emit('terminal_error', '[CompileX Engine]: Interactive terminal is currently routed through the batch API for security and stability.\nPlease use the "Input" tab for stdin and click "Run".');
-    socket.emit('execution_complete', { 
-        status: { id: 13, description: 'Internal Error' },
-        time: '0.000',
-        memory: 0
+    const { files, main_file, language_id } = data;
+    const lang = langMap[language_id];
+    if (!lang) throw new Error('Unsupported language ID.');
+
+    const tmpPath = path.join(os.tmpdir(), `compilex_${Date.now()}_${Math.random().toString(36).substring(7)}`);
+    await fs.mkdir(tmpPath, { recursive: true });
+
+    let className = 'Main';
+    let runFile = '';
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        let fName = file.name;
+        // Handle potential base64 if sent from some variants, or raw string
+        let sourceStr = file.content;
+        try { sourceStr = Buffer.from(file.content, 'base64').toString('utf-8'); } catch(e){}
+        
+        if (fName === 'main' && lang.ext !== 'java') fName = 'main.' + lang.ext;
+        
+        if (lang.ext === 'java') {
+            const match = sourceStr.match(/(?:public\s+)?class\s+([a-zA-Z0-9_]+)/);
+            if (match) {
+                const detectedName = match[1];
+                if (file.name === main_file || files.length === 1 || fName === 'main') className = detectedName;
+                if (!fName.endsWith('.java')) fName = detectedName + '.java';
+            } else if (!fName.endsWith('.java')) {
+                fName += '.java';
+            }
+        }
+        if (file.name === main_file || (!runFile && i === 0)) runFile = fName;
+        await fs.writeFile(path.join(tmpPath, fName), sourceStr);
+    }
+
+    const startTime = process.hrtime();
+    let runnerCmd = lang.runner;
+    let runnerArgs = [];
+
+    if (lang.ext === 'java') {
+        try {
+            await fs.mkdir(path.join(tmpPath, 'lib'), { recursive: true });
+            const compileCmd = os.platform() === 'win32' ? `javac -cp ".;lib/*" *.java` : `javac -cp ".:lib/*" *.java`;
+            await execPromise(compileCmd, { cwd: tmpPath });
+        } catch (err) {
+            socket.emit('terminal_error', err.stderr || err.message);
+            socket.emit('execution_complete', calculateStats({ status: { id: 11 } }, startTime));
+            return null;
+        }
+        const javaCp = os.platform() === 'win32' ? `.;lib/*` : `.:lib/*`;
+        runnerCmd = 'java';
+        runnerArgs = ['-cp', javaCp, className];
+    } else if (lang.ext === 'py') {
+        // Try to handle "python not found" by checking 'python' then 'py'
+        runnerCmd = os.platform() === 'win32' ? 'python' : 'python3';
+        runnerArgs = ['-u', runFile]; // Unbuffered for streaming
+    } else {
+        runnerArgs = [runFile];
+    }
+
+    const child = spawn(runnerCmd, runnerArgs, { cwd: tmpPath });
+
+    child.stdout.on('data', (d) => socket.emit('terminal_output', d.toString()));
+    child.stderr.on('data', (d) => socket.emit('terminal_error', d.toString()));
+    
+    child.on('error', (err) => {
+        if (err.code === 'ENOENT') {
+            socket.emit('terminal_error', `Error: ${runnerCmd} command not found. Please ensure the compiler is installed on the server.`);
+        } else {
+            socket.emit('terminal_error', err.message);
+        }
     });
-    return null;
+
+    child.on('close', (code) => {
+        socket.emit('execution_complete', calculateStats({ 
+            status: { id: code === 0 ? 3 : 11, description: code === 0 ? 'Accepted' : 'Runtime Error' } 
+        }, startTime));
+        // Cleanup
+        fs.rm(tmpPath, { recursive: true, force: true }).catch(() => {});
+    });
+
+    return child;
 };
