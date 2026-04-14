@@ -58,10 +58,10 @@
 }
 
 html, body, #root {
-  height: 100%;
+  min-height: 100%;
   width: 100%;
-  /* Removed overflow: hidden to allow browser-level interactions if needed, 
-     but keeping the app container constrained. */
+  /* Removed fixed height and overflow: hidden to ensure 
+     browser zoom and panning work naturally. */
 }
 
 body {
@@ -76,12 +76,13 @@ body {
 .app {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  height: 100dvh; /* Dynamic viewport height for mobile */
-  width: 100vw;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
   background: var(--surface-0);
   color: var(--text-primary);
-  overflow: hidden;
+  /* Changed overflow: hidden to visible to enable global zoom panning */
+  overflow: visible;
   transition: background 0.3s ease, color 0.3s ease;
   outline: none;
   position: relative;
@@ -90,7 +91,7 @@ body {
 .app-body {
   display: flex;
   flex: 1;
-  overflow: hidden;
+  overflow: visible;
   min-height: 0;
 }
 
@@ -101,7 +102,7 @@ body {
   flex: 1;
   min-width: 0;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
 }
 
@@ -169,12 +170,12 @@ body {
 .editor-pane {
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .console-pane {
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* ─── Draggable Dividers ─── */

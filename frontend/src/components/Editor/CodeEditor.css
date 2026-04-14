@@ -1,7 +1,7 @@
 .code-editor-wrapper {
   height: 100%;
   width: 100%;
-  overflow: hidden;
+  overflow: visible;
   border-radius: 0;
 }
 

@@ -89,6 +89,7 @@ export default function CodeEditor({ value, language, theme, onChange }) {
     minimap: { enabled: false },
     scrollBeyondLastLine: false,
     automaticLayout: true,
+    mouseWheelZoom: true, // Enable Ctrl + Scroll for text zoom
     tabSize: 4,
     insertSpaces: true,
     wordWrap: 'on',
