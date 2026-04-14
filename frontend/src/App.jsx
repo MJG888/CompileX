@@ -344,9 +344,9 @@ export default function App() {
           </div>
         )}
 
-        {/* AI Panel */}
-        {aiPanelOpen && (
-          <div className="ai-panel-wrapper" style={{ flex: `0 0 ${horizontalSplit}%` }}>
+        {/* AI Panel (Drawer on mobile) */}
+        <div className={`ai-panel-wrapper ${aiPanelOpen ? 'open' : ''}`} style={{ flex: aiPanelOpen ? `0 0 ${horizontalSplit}%` : '0 0 0' }}>
+          {aiPanelOpen && (
             <AIPanel
                isOpen={aiPanelOpen}
                code={code}
@@ -356,8 +356,8 @@ export default function App() {
                onInsertCode={handleInsertCode}
                onClose={() => setAIPanelOpen(false)}
             />
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Global Transparent Overlay during resize to catch all mouse events */}
         {isResizing && <div className="resizing-overlay" />}
