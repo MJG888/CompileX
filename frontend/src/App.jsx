@@ -51,16 +51,20 @@ export default function App() {
     }
   }, [selectedLanguage]);
 
-  const setCode = (newContent) => {
+  const setCode = useCallback((newContent) => {
     setFilesByLang(prev => {
-      const langFiles = [...prev[selectedLanguage]];
-      const idx = langFiles.findIndex(f => f.name === activeFile.name);
-      if (idx !== -1) {
-        langFiles[idx] = { ...langFiles[idx], content: newContent };
-      }
-      return { ...prev, [selectedLanguage]: langFiles };
+      const currentFiles = prev[selectedLanguage];
+      if (!currentFiles || currentFiles.length === 0) return prev;
+      
+      const idx = currentFiles.findIndex(f => f.name === activeFileName);
+      if (idx === -1) return prev;
+      
+      const updatedFiles = [...currentFiles];
+      updatedFiles[idx] = { ...updatedFiles[idx], content: newContent };
+      
+      return { ...prev, [selectedLanguage]: updatedFiles };
     });
-  };
+  }, [selectedLanguage, activeFileName]);
 
   const handleAddFile = () => {
     const name = prompt('Enter new file name:');
@@ -153,7 +157,8 @@ export default function App() {
   // AI insert code into editor
   const handleInsertCode = useCallback((insertedCode) => {
     setCode(insertedCode);
-  }, []);
+    setAIPanelOpen(false); // Mobile UX: Close drawer after insertion
+  }, [setCode]);
 
   // Keyboard shortcut: Ctrl+Enter to run
   const handleKeyDown = useCallback(

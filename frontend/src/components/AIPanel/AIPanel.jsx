@@ -21,10 +21,10 @@ function MessageContent({ text, onInsert }) {
   return (
     <div className="message-content">
       {parts.map((part, i) => {
-        const codeMatch = part.match(/^```([\w]*)\n([\s\S]*?)```$/);
+        const codeMatch = part.match(/^```([\w]*)\s*\n([\s\S]*?)```/);
         if (codeMatch) {
-          const lang = codeMatch[1] || '';
-          const code = codeMatch[2].trimEnd();
+          const lang = codeMatch[1]?.trim() || '';
+          const code = codeMatch[2].trim();
           return (
             <div key={i} className="code-block-wrapper">
               <div className="code-block-header">
