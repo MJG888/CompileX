@@ -69,6 +69,7 @@ export default function CodeEditor({ value, language, theme, onChange }) {
   const handleEditorMount = (editor, monaco) => {
     editorRef.current = editor;
     monacoRef.current = monaco;
+    window.monacoEditor = editor; // Stability fix: Expose for resize recalculation
     defineTheme(monaco);
     monaco.editor.setTheme(theme === 'dark' ? 'compilex-dark' : 'compilex-light');
 
@@ -85,18 +86,28 @@ export default function CodeEditor({ value, language, theme, onChange }) {
 
   const editorOptions = {
     fontSize: 14,
-    lineHeight: 22,
-    minimap: { enabled: false },
+    minimap: { enabled: true },
     scrollBeyondLastLine: false,
     automaticLayout: true,
-    mouseWheelZoom: true, // Enable Ctrl + Scroll for text zoom
-    tabSize: 4,
-    insertSpaces: true,
-    wordWrap: 'on',
+    theme: theme === 'dark' ? 'vs-dark' : 'vs-light',
+    padding: { top: 16 },
+    fontFamily: 'JetBrains Mono, monospace',
+    mouseWheelZoom: true,
+    smoothScrolling: true,
+    wordWrap: 'off',
+    lineNumbersMinChars: 3,
+    glyphMargin: false,
+    folding: true,
+    scrollbar: {
+      vertical: 'visible',
+      horizontal: 'visible',
+      useShadows: false,
+      verticalScrollbarSize: 10,
+      horizontalScrollbarSize: 10,
+    },
     renderLineHighlight: 'all',
     cursorStyle: 'line',
     cursorBlinking: 'smooth',
-    smoothScrolling: true,
     contextmenu: true,
     selectOnLineNumbers: true,
     roundedSelection: true,

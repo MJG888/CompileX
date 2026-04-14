@@ -28,6 +28,7 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [isInteractive, setIsInteractive] = useState(false);
+  const [stdin, setStdin] = useState('');
   const [aiPanelOpen, setAIPanelOpen] = useState(false);
   const [verticalSplit, setVerticalSplit] = useState(70); // % for Editor (0-100)
   const [horizontalSplit, setHorizontalSplit] = useState(25); // % for AI Panel (0-100)
@@ -135,9 +136,10 @@ export default function App() {
     socket.emit('execute', { 
         files: encodedFiles, 
         main_file: activeFileName, 
-        language_id: lang.judge0Id 
+        language_id: lang.judge0Id,
+        stdin: encode(stdin || '')
     });
-  }, [activeLangFiles, activeFileName, selectedLanguage, isRunning]);
+  }, [activeLangFiles, activeFileName, selectedLanguage, isRunning, stdin]);
 
   const handleStop = useCallback(() => {
     socket.emit('stop');
@@ -163,6 +165,17 @@ export default function App() {
     },
     [handleRun]
   );
+
+  // Stability fix: Recalculate Monaco layout when panels resize
+  useEffect(() => {
+    // We use a small timeout to let the DOM settle before layout recalculation
+    const timer = setTimeout(() => {
+      if (window.monacoEditor) {
+        window.monacoEditor.layout();
+      }
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [verticalSplit, horizontalSplit, aiPanelOpen]);
 
   // Vertical resize: Editor vs Console
   const handleVerticalDividerMouseDown = (e) => {
@@ -314,6 +327,8 @@ export default function App() {
               result={result}
               isRunning={isRunning}
               isInteractive={isInteractive}
+              stdin={stdin}
+              onStdinChange={setStdin}
               onSendInput={handleTerminalInput}
               onStop={handleStop}
             />
