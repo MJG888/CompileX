@@ -169,7 +169,8 @@ body {
 .editor-pane {
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+  overflow: auto;
+  touch-action: auto;
 }
 
 .console-pane {

@@ -166,60 +166,78 @@ export default function App() {
 
   // Vertical resize: Editor vs Console
   const handleVerticalDividerMouseDown = (e) => {
-    e.preventDefault();
+    // Only prevent default for mouse to stop text selection, 
+    // but on touch we might need to be careful with zoom.
+    if (e.type === 'mousedown') e.preventDefault();
+    
     isDraggingVertical.current = true;
     setIsResizing(true);
     document.body.style.cursor = 'row-resize';
     document.body.style.userSelect = 'none';
 
-    const onMouseMove = (ev) => {
+    const getClientY = (ev) => ev.touches ? ev.touches[0].clientY : ev.clientY;
+
+    const onMove = (ev) => {
       if (!isDraggingVertical.current || !containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
-      const newHeight = rect.bottom - ev.clientY;
+      const y = getClientY(ev);
+      const newHeight = rect.bottom - y;
       const clamped = Math.min(Math.max(newHeight, 80), rect.height - 100);
       setConsoleHeight(clamped);
     };
 
-    const onMouseUp = () => {
+    const onEnd = () => {
       isDraggingVertical.current = false;
       setIsResizing(false);
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onEnd);
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend', onEnd);
     };
 
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onEnd);
+    window.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('touchend', onEnd);
   };
 
   // Horizontal resize: Main Area vs AI Panel
   const handleHorizontalDividerMouseDown = (e) => {
-    e.preventDefault();
+    if (e.type === 'mousedown') e.preventDefault();
+    
     isDraggingHorizontal.current = true;
     setIsResizing(true);
     document.body.style.cursor = 'col-resize';
     document.body.style.userSelect = 'none';
 
-    const onMouseMove = (ev) => {
+    const getClientX = (ev) => ev.touches ? ev.touches[0].clientX : ev.clientX;
+
+    const onMove = (ev) => {
       if (!isDraggingHorizontal.current || !bodyRef.current) return;
       const rect = bodyRef.current.getBoundingClientRect();
-      const width = rect.right - ev.clientX;
+      const x = getClientX(ev);
+      const width = rect.right - x;
       const clamped = Math.min(Math.max(width, 250), rect.width * 0.6);
       setAiPanelWidth(clamped);
     };
 
-    const onMouseUp = () => {
+    const onEnd = () => {
       isDraggingHorizontal.current = false;
       setIsResizing(false);
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onEnd);
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend', onEnd);
     };
 
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onEnd);
+    window.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('touchend', onEnd);
   };
 
   const execError = result ? (result.stderr || result.compile_output || '') : '';
@@ -287,7 +305,7 @@ export default function App() {
           </div>
 
           {/* Draggable Vertical Divider */}
-          <div className="panel-divider vertical" onMouseDown={handleVerticalDividerMouseDown}>
+          <div className="panel-divider vertical" onMouseDown={handleVerticalDividerMouseDown} onTouchStart={handleVerticalDividerMouseDown}>
             <div className="divider-handle">
               <span /><span /><span />
             </div>
@@ -308,7 +326,7 @@ export default function App() {
 
         {/* Draggable Horizontal Divider (only if AI open) */}
         {aiPanelOpen && (
-          <div className="panel-divider horizontal" onMouseDown={handleHorizontalDividerMouseDown}>
+          <div className="panel-divider horizontal" onMouseDown={handleHorizontalDividerMouseDown} onTouchStart={handleHorizontalDividerMouseDown}>
             <div className="divider-handle">
               <span /><span /><span />
             </div>

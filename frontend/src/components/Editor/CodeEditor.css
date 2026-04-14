@@ -1,8 +1,9 @@
 .code-editor-wrapper {
   height: 100%;
   width: 100%;
-  overflow: visible;
+  overflow: auto;
   border-radius: 0;
+  touch-action: auto; /* Allow browser gestures like pinch-zoom */
 }
 
 .editor-loading {
