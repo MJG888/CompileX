@@ -165,6 +165,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  /* flex: 1; is set inline in App.jsx */
 }
 
 .editor-pane {
@@ -191,9 +192,11 @@ body {
 }
 
 .panel-divider.vertical {
-  height: 6px;
+  height: 8px; /* Slightly thicker */
   width: 100%;
   cursor: row-resize;
+  margin-top: -4px; /* Offset to center hit-box */
+  margin-bottom: -4px;
 }
 
 .panel-divider.horizontal {
@@ -307,6 +310,22 @@ body {
     max-width: none;
     height: 50%;
   }
+}
+
+.resizing-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  cursor: inherit;
+  background: transparent;
+}
+
+.ai-panel-wrapper {
+  display: flex;
+  flex-shrink: 0;
 }
 
 @keyframes float {

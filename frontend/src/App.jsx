@@ -29,12 +29,13 @@ export default function App() {
   const [isRunning, setIsRunning] = useState(false);
   const [isInteractive, setIsInteractive] = useState(false);
   const [aiPanelOpen, setAIPanelOpen] = useState(false);
-  const [consoleSize, setConsoleSize] = useState(35); // % of vertical split
+  const [consoleHeight, setConsoleHeight] = useState(250); // px height for Console
   const [aiPanelWidth, setAiPanelWidth] = useState(360); // px width for AI panel
   const isDraggingVertical = useRef(false);
   const isDraggingHorizontal = useRef(false);
   const bodyRef = useRef(null);
   const containerRef = useRef(null);
+  const [isResizing, setIsResizing] = useState(false);
 
   // Derived active file properties
   const activeLangFiles = filesByLang[selectedLanguage] || [];
@@ -167,19 +168,21 @@ export default function App() {
   const handleVerticalDividerMouseDown = (e) => {
     e.preventDefault();
     isDraggingVertical.current = true;
+    setIsResizing(true);
     document.body.style.cursor = 'row-resize';
     document.body.style.userSelect = 'none';
 
     const onMouseMove = (ev) => {
       if (!isDraggingVertical.current || !containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
-      const ratio = ((ev.clientY - rect.top) / rect.height) * 100;
-      const clamped = Math.min(Math.max(ratio, 15), 85);
-      setConsoleSize(100 - clamped);
+      const newHeight = rect.bottom - ev.clientY;
+      const clamped = Math.min(Math.max(newHeight, 80), rect.height - 100);
+      setConsoleHeight(clamped);
     };
 
     const onMouseUp = () => {
       isDraggingVertical.current = false;
+      setIsResizing(false);
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
       window.removeEventListener('mousemove', onMouseMove);
@@ -194,6 +197,7 @@ export default function App() {
   const handleHorizontalDividerMouseDown = (e) => {
     e.preventDefault();
     isDraggingHorizontal.current = true;
+    setIsResizing(true);
     document.body.style.cursor = 'col-resize';
     document.body.style.userSelect = 'none';
 
@@ -201,12 +205,13 @@ export default function App() {
       if (!isDraggingHorizontal.current || !bodyRef.current) return;
       const rect = bodyRef.current.getBoundingClientRect();
       const width = rect.right - ev.clientX;
-      const clamped = Math.min(Math.max(width, 250), rect.width * 0.5);
+      const clamped = Math.min(Math.max(width, 250), rect.width * 0.6);
       setAiPanelWidth(clamped);
     };
 
     const onMouseUp = () => {
       isDraggingHorizontal.current = false;
+      setIsResizing(false);
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
       window.removeEventListener('mousemove', onMouseMove);
@@ -239,11 +244,11 @@ export default function App() {
       />
 
       {/* Main layout */}
-      <div className="app-body" ref={bodyRef}>
+      <div className={`app-body ${isResizing ? 'resizing' : ''}`} ref={bodyRef}>
         {/* Editor + Console column */}
         <div className="editor-area" ref={containerRef}>
-          {/* File Tabs UI & Monaco Editor */}
-          <div className="editor-pane-container" style={{ height: `${100 - consoleSize}%` }}>
+          {/* Editor Pane (Flex fill) */}
+          <div className="editor-pane-container" style={{ flex: 1 }}>
             <div className="file-tabs">
               {activeLangFiles.map(f => (
                 <button
@@ -288,8 +293,8 @@ export default function App() {
             </div>
           </div>
 
-          {/* Output Console */}
-          <div className="console-pane" style={{ height: `${consoleSize}%` }}>
+          {/* Output Console (Fixed Height state) */}
+          <div className="console-pane" style={{ height: `${consoleHeight}px`, minHeight: '80px' }}>
             <Console
               terminalData={terminalData}
               result={result}
@@ -312,7 +317,7 @@ export default function App() {
 
         {/* AI Panel */}
         {aiPanelOpen && (
-          <div style={{ '--ai-panel-width': `${aiPanelWidth}px` }}>
+          <div className="ai-panel-wrapper" style={{ width: `${aiPanelWidth}px` }}>
             <AIPanel
                isOpen={aiPanelOpen}
                code={code}
@@ -324,6 +329,9 @@ export default function App() {
             />
           </div>
         )}
+
+        {/* Global Transparent Overlay during resize to catch all mouse events */}
+        {isResizing && <div className="resizing-overlay" />}
       </div>
 
       {/* Status Bar */}
