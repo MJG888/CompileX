@@ -22,7 +22,16 @@ const getStatusFromResult = (result) => {
   return 'idle';
 };
 
-export default function Console({ terminalData = [], result, isRunning, isInteractive, onSendInput, onStop }) {
+export default function Console({ 
+  terminalData = [], 
+  result, 
+  isRunning, 
+  isInteractive, 
+  stdin = '', 
+  onStdinChange, 
+  onSendInput, 
+  onStop 
+}) {
   const [activeTab, setActiveTab] = useState('output');
   const [inputValue, setInputValue] = useState('');
 
@@ -132,9 +141,6 @@ export default function Console({ terminalData = [], result, isRunning, isIntera
             ) : result && !hasOutput && !hasError ? (
               <div className="console-empty">
                 <span>✓ Program exited with no output</span>
-              </div>
-            ) : (
-                <p>Execution complete. No output provided.</p>
               </div>
             ) : (
               <div className="console-placeholder">
