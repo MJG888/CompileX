@@ -4,11 +4,11 @@ import { LANGUAGES } from '../../constants/languages';
 import './AIPanel.css';
 
 const quickActions = [
-  { id: 'generate', label: 'Generate Code', icon: '✨', desc: 'Describe what to build' },
-  { id: 'debug', label: 'Debug', icon: '🐛', desc: 'Find and fix bugs' },
+  { id: 'generate', label: 'Generate', icon: '💻', desc: 'Describe what to build' },
+  { id: 'debug', label: 'Debug', icon: '🐞', desc: 'Find and fix bugs' },
   { id: 'explain', label: 'Explain', icon: '📖', desc: 'Understand the code' },
   { id: 'optimize', label: 'Optimize', icon: '⚡', desc: 'Improve performance' },
-  { id: 'convert', label: 'Convert', icon: '🔄', desc: 'Translate to another language' },
+  { id: 'convert', label: 'Convert', icon: '🔁', desc: 'Translate to another language' },
 ];
 
 // Simple markdown-to-text renderer for code blocks
@@ -72,7 +72,7 @@ export default function AIPanel({ isOpen, code, files, language, execError, onIn
   const [messages, setMessages] = useState([
     {
       role: 'ai',
-      text: `👋 Hi! I'm your **CompileX AI Assistant** powered by Gemini.\n\nI can help you:\n- ✨ **Generate** code from your description\n- 🐛 **Debug** errors and fix bugs\n- 📖 **Explain** code line by line\n- ⚡ **Optimize** for better performance\n- 🔄 **Convert** code between languages\n\nWhat would you like to do?${isAIMockMode() ? '\n\n> ⚠️ **Demo Mode** — Add `VITE_GEMINI_API_KEY` to `.env` for real AI responses.' : ''}`,
+      text: `Welcome to the **CompileX AI Assistant**.\n\nI can assist with:\n- **Generation**: Code from technical descriptions\n- **Debugging**: Identifying and fixing runtime or logical errors\n- **Documentation**: Detailed explanations of existing codebases\n- **Optimization**: Improving complexity and performance\n- **Conversion**: Porting logic across different programming languages\n\nHow can I assist your development today?${isAIMockMode() ? '\n\n> **Demo Mode** — Add `VITE_GROQ_API_KEY` to `.env` for production AI integration.' : ''}`,
     },
   ]);
   const [activeAction, setActiveAction] = useState(null);

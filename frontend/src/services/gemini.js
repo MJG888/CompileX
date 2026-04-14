@@ -13,31 +13,32 @@ const F = '```'; // fence shorthand
 const MOCK_RESPONSES = {
   generate: (prompt, language) => ({
     text: [
-      'Here\'s a ' + language + ' implementation for: **' + prompt + '**',
+      '// Generated implementation for: ' + prompt,
       '',
       F + language,
-      '# Demo mode - Add VITE_GROQ_API_KEY to .env for real AI responses',
+      '// Demo mode - Add VITE_GROQ_API_KEY to .env for real AI responses',
       '',
       'def binary_search(arr, target):',
+      '    # Implementation placeholder',
       '    return -1',
       F
     ].join('\n'),
     type: 'code',
   }),
   debug: (code, error) => ({
-    text: '## 🔍 Bug Analysis\n**Demo Mode** — Add VITE_GROQ_API_KEY to .env.',
+    text: '## Bug Analysis\n**Demo Mode** — Add VITE_GROQ_API_KEY to .env.',
     type: 'text',
   }),
   explain: (code) => ({
-    text: '## 📖 Code Explanation\n**Demo Mode** — Add VITE_GROQ_API_KEY to .env.',
+    text: '## Code Explanation\n**Demo Mode** — Add VITE_GROQ_API_KEY to .env.',
     type: 'text',
   }),
   optimize: () => ({
-    text: '## ⚡ Optimization\n**Demo Mode** — Add VITE_GROQ_API_KEY to .env.',
+    text: '## Performance Optimization\n**Demo Mode** — Add VITE_GROQ_API_KEY to .env.',
     type: 'text',
   }),
   convert: (fromLang, toLang) => ({
-    text: '## 🔄 Language Conversion\n**Demo Mode** — Add VITE_GROQ_API_KEY.',
+    text: '## Language Conversion\n**Demo Mode** — Add VITE_GROQ_API_KEY.',
     type: 'code',
   }),
 };
@@ -118,7 +119,7 @@ export const explainCode = async (contextBundle, language) => {
   const formattedCode = stringifyContext(contextBundle, language);
   const fullPrompt =
     'You are a patient programming teacher. Explain this ' + language +
-    ' project clearly for a beginner. Discuss the architecture across files if applicable, then break it down line by line or section by section. Use simple language and emojis.\n\n' +
+    ' project clearly. Discuss the architecture across files if applicable, then break it down line by line or section by section. Use technical, precise language.\n\n' +
     formattedCode;
   const text = await callAI(fullPrompt);
   return { text, type: 'text' };
