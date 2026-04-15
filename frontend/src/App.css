@@ -118,8 +118,9 @@ body {
 @media (max-width: 768px) {
   .editor-area {
     width: 100% !important;
-    height: 50dvh !important;
+    height: 45dvh !important; /* Slightly smaller to give console more room */
     flex: none;
+    overflow: hidden;
   }
 }
 

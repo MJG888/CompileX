@@ -86,11 +86,11 @@ export default function CodeEditor({ value, language, theme, onChange }) {
 
   const editorOptions = {
     fontSize: 14,
-    lineHeight: 20,
+    lineHeight: 21,
     minimap: { enabled: false },
     scrollBeyondLastLine: false,
     automaticLayout: true,
-    fixedOverflowWidgets: true, // Crucial for mobile menus
+    fixedOverflowWidgets: true,
     theme: theme === 'dark' ? 'vs-dark' : 'vs-light',
     fontFamily: 'JetBrains Mono, monospace',
     mouseWheelZoom: true,
