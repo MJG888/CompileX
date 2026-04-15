@@ -8,7 +8,13 @@ import { LANGUAGES, getLanguageById } from './constants/languages';
 import { io } from 'socket.io-client';
 import './App.css';
 
-const socket = io('http://localhost:5000', { autoConnect: false });
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+const socket = io(BACKEND_URL, { 
+  autoConnect: false,
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000
+});
 
 // Initialize files grouped by language to avoid template overwrite bug
 const initialFiles = LANGUAGES.reduce((acc, lang) => {
@@ -94,6 +100,15 @@ export default function App() {
   useEffect(() => {
     socket.connect();
     
+    socket.on('connect', () => {
+      console.log('Connected to execution server');
+    });
+
+    socket.on('connect_error', (err) => {
+      console.error('Socket Connection Error:', err.message);
+      setTerminalData(prev => [...prev, { type: 'error', text: `Connection Error: ${err.message}. Ensure backend is running at ${BACKEND_URL}\n` }]);
+    });
+    
     socket.on('terminal_output', data => {
       setTerminalData(prev => [...prev, { type: 'output', text: data }]);
     });
@@ -109,6 +124,8 @@ export default function App() {
     });
 
     return () => {
+      socket.off('connect');
+      socket.off('connect_error');
       socket.off('terminal_output');
       socket.off('terminal_error');
       socket.off('execution_complete');
@@ -319,7 +336,12 @@ export default function App() {
           </div>
 
           {/* Draggable Vertical Divider */}
-          <div className="panel-divider vertical" onMouseDown={handleVerticalDividerMouseDown} onTouchStart={handleVerticalDividerMouseDown}>
+          <div 
+            className="panel-divider vertical" 
+            onMouseDown={handleVerticalDividerMouseDown} 
+            onTouchStart={handleVerticalDividerMouseDown}
+            style={{ touchAction: 'none' }}
+          >
             <div className="divider-handle">
               <span /><span /><span />
             </div>
@@ -342,7 +364,12 @@ export default function App() {
 
         {/* Draggable Horizontal Divider (only if AI open) */}
         {aiPanelOpen && (
-          <div className="panel-divider horizontal" onMouseDown={handleHorizontalDividerMouseDown} onTouchStart={handleHorizontalDividerMouseDown}>
+          <div 
+            className="panel-divider horizontal" 
+            onMouseDown={handleHorizontalDividerMouseDown} 
+            onTouchStart={handleHorizontalDividerMouseDown}
+            style={{ touchAction: 'none' }}
+          >
             <div className="divider-handle">
               <span /><span /><span />
             </div>

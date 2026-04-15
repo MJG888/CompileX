@@ -86,14 +86,16 @@ export default function CodeEditor({ value, language, theme, onChange }) {
 
   const editorOptions = {
     fontSize: 14,
+    lineHeight: 20,
     minimap: { enabled: false },
     scrollBeyondLastLine: false,
     automaticLayout: true,
+    fixedOverflowWidgets: true, // Crucial for mobile menus
     theme: theme === 'dark' ? 'vs-dark' : 'vs-light',
     fontFamily: 'JetBrains Mono, monospace',
     mouseWheelZoom: true,
     smoothScrolling: true,
-    wordWrap: 'off',
+    wordWrap: 'on', // Better for small screens
     lineNumbersMinChars: 3,
     scrollbar: {
       vertical: 'visible',
@@ -120,7 +122,15 @@ export default function CodeEditor({ value, language, theme, onChange }) {
     formatOnPaste: true,
     autoIndent: 'full',
     detectIndentation: true,
-    trimAutoWhitespace: true
+    trimAutoWhitespace: true,
+    quickSuggestions: {
+      other: true,
+      comments: false,
+      strings: true
+    },
+    parameterHints: {
+      enabled: true
+    }
   };
 
   return (

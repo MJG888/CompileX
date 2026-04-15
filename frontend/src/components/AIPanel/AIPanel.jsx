@@ -4,11 +4,36 @@ import { LANGUAGES } from '../../constants/languages';
 import './AIPanel.css';
 
 const quickActions = [
-  { id: 'generate', label: 'Generate', icon: '💻', desc: 'Describe what to build' },
-  { id: 'debug', label: 'Debug', icon: '🐞', desc: 'Find and fix bugs' },
-  { id: 'explain', label: 'Explain', icon: '📖', desc: 'Understand the code' },
-  { id: 'optimize', label: 'Optimize', icon: '⚡', desc: 'Improve performance' },
-  { id: 'convert', label: 'Convert', icon: '🔁', desc: 'Translate to another language' },
+  { 
+    id: 'generate', 
+    label: 'Generate', 
+    icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34" /><polygon points="18 2 22 6 12 16 8 16 8 12 18 2" /></svg>, 
+    desc: 'Describe what to build' 
+  },
+  { 
+    id: 'debug', 
+    label: 'Debug', 
+    icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v2m-5 1a8 8 0 0 0 10 0M5 10a8 8 0 0 0 1.5 6M19 10a8 8 0 0 1-1.5 6M4 14l2-2m14 2l-2-2m-8 6v2m-4-1l1-1m10 1l-1-1" /><circle cx="12" cy="13" r="3" /></svg>, 
+    desc: 'Find and fix bugs' 
+  },
+  { 
+    id: 'explain', 
+    label: 'Explain', 
+    icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>, 
+    desc: 'Understand the code' 
+  },
+  { 
+    id: 'optimize', 
+    label: 'Optimize', 
+    icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m12 14 4-4-4-4" /><path d="M3.34 19a10 10 0 1 1 17.32 0" /></svg>, 
+    desc: 'Improve performance' 
+  },
+  { 
+    id: 'convert', 
+    label: 'Convert', 
+    icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m16 3 4 4-4 4" /><path d="M20 7H9a7 7 0 0 0 0 14h1" /><path d="m8 21-4-4 4-4" /><path d="M4 17h11a7 7 0 0 0 0-14h-1" /></svg>, 
+    desc: 'Translate to another language' 
+  },
 ];
 
 // Simple markdown-to-text renderer for code blocks
@@ -169,11 +194,9 @@ export default function AIPanel({ isOpen, code, files, language, execError, onIn
       <div className="ai-panel-header">
         <div className="ai-panel-title">
           <div className="ai-avatar">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z" />
-              <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-              <line x1="9" y1="9" x2="9.01" y2="9" strokeWidth="3" strokeLinecap="round" />
-              <line x1="15" y1="9" x2="15.01" y2="9" strokeWidth="3" strokeLinecap="round" />
+              <path d="M12 8v4" /><path d="M12 16h.01" />
             </svg>
           </div>
           <div>
@@ -211,7 +234,9 @@ export default function AIPanel({ isOpen, code, files, language, execError, onIn
           <div key={i} className={`ai-message ${msg.role}`}>
             {msg.role === 'ai' && (
               <div className="message-avatar ai-avatar-small">
-                <span>✦</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                </svg>
               </div>
             )}
             <div className="message-bubble">
@@ -221,7 +246,11 @@ export default function AIPanel({ isOpen, code, files, language, execError, onIn
         ))}
         {isLoading && (
           <div className="ai-message ai">
-            <div className="message-avatar ai-avatar-small"><span>✦</span></div>
+            <div className="message-avatar ai-avatar-small">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                </svg>
+            </div>
             <div className="message-bubble">
               <div className="ai-typing">
                 <span /><span /><span />

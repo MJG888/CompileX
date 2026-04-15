@@ -117,8 +117,8 @@ body {
 
 @media (max-width: 768px) {
   .editor-area {
-    width: 100% !important; /* Full width on mobile */
-    height: 60vh !important; /* Fixed portion for editor area */
+    width: 100% !important;
+    height: 50dvh !important;
     flex: none;
   }
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './Console.css';
 
 const STATUS_CONFIG = {
@@ -34,6 +34,14 @@ export default function Console({
 }) {
   const [activeTab, setActiveTab] = useState('output');
   const [inputValue, setInputValue] = useState('');
+  const scrollRef = useRef(null);
+
+  // Auto-scroll to bottom of terminal
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [terminalData, isInteractive]);
 
   const status = isRunning ? 'running' : getStatusFromResult(result);
   const statusConfig = STATUS_CONFIG[status];
@@ -116,7 +124,7 @@ export default function Console({
       <div className="console-body">
         {/* Output Tab (Terminal) */}
         {activeTab === 'output' && (
-          <div className="console-content terminal-mode">
+          <div className="console-content terminal-mode" ref={scrollRef}>
             {hasOutput || isInteractive ? (
               <div className="console-output success-output">
                 {terminalData.map((d, i) => (

@@ -133,10 +133,19 @@ export const executeInteractive = async (data, socket) => {
 
     const child = spawn(runnerCmd, runnerArgs, { cwd: tmpPath });
 
+    // Self-destruction timer (30 seconds max execution)
+    const timeout = setTimeout(() => {
+        if (!child.killed) {
+            child.kill('SIGKILL');
+            socket.emit('terminal_error', '\n[Execution timed out (30s limit)]\n');
+        }
+    }, 30000);
+
     child.stdout.on('data', (d) => socket.emit('terminal_output', d.toString()));
     child.stderr.on('data', (d) => socket.emit('terminal_error', d.toString()));
     
     child.on('error', (err) => {
+        clearTimeout(timeout);
         if (err.code === 'ENOENT') {
             socket.emit('terminal_error', `Error: ${runnerCmd} command not found. Please ensure the compiler is installed on the server.`);
         } else {
@@ -145,10 +154,11 @@ export const executeInteractive = async (data, socket) => {
     });
 
     child.on('close', (code) => {
+        clearTimeout(timeout);
         socket.emit('execution_complete', calculateStats({ 
             status: { id: code === 0 ? 3 : 11, description: code === 0 ? 'Accepted' : 'Runtime Error' } 
         }, startTime));
-        // Cleanup
+        // Cleanup temp directory
         fs.rm(tmpPath, { recursive: true, force: true }).catch(() => {});
     });
 
