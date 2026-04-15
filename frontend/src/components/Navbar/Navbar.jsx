@@ -43,6 +43,7 @@ export default function Navbar({
   onThemeToggle,
   onAIToggle,
   aiPanelOpen,
+  version,
 }) {
   const lang = LANGUAGES.find((l) => l.id === selectedLanguage) || LANGUAGES[0];
 
@@ -65,6 +66,7 @@ export default function Navbar({
           Compile<span className="logo-accent">X</span>
         </span>
         <span className="logo-badge">AI</span>
+        {version && <span className="version-info" style={{ fontSize: '10px', color: 'var(--text-muted)', marginLeft: '8px', opacity: 0.6 }}>v{version}</span>}
       </div>
 
       {/* Center: Language Selector */}

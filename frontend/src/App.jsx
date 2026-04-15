@@ -58,6 +58,8 @@ export default function App() {
   const isDraggingVertical = useRef(false);
   const isDraggingHorizontal = useRef(false);
   const bodyRef = useRef(null);
+  const editorContainerRef = useRef(null);
+  const APP_VERSION = "1.0.6";
   const containerRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
 
@@ -207,14 +209,17 @@ export default function App() {
 
   // Stability fix: Recalculate Monaco layout when panels resize
   useEffect(() => {
-    // We use a small timeout to let the DOM settle before layout recalculation
-    const timer = setTimeout(() => {
+    if (!editorContainerRef.current) return;
+    
+    const observer = new ResizeObserver(() => {
       if (window.monacoEditor) {
         window.monacoEditor.layout();
       }
-    }, 50);
-    return () => clearTimeout(timer);
-  }, [verticalSplit, horizontalSplit, aiPanelOpen]);
+    });
+    
+    observer.observe(editorContainerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   // Vertical resize: Editor vs Console
   const handleVerticalDividerMouseDown = (e) => {
@@ -307,6 +312,7 @@ export default function App() {
         onThemeToggle={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
         onAIToggle={() => setAIPanelOpen((o) => !o)}
         aiPanelOpen={aiPanelOpen}
+        version={APP_VERSION}
       />
 
       {/* Main layout */}
@@ -354,7 +360,7 @@ export default function App() {
               }
             `}
             </style>
-            <div className="editor-pane">
+            <div className="editor-pane" ref={editorContainerRef}>
               <CodeEditor
                 value={code}
                 language={getLanguageById(selectedLanguage).monacoId}
