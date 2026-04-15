@@ -8,11 +8,16 @@ import { LANGUAGES, getLanguageById } from './constants/languages';
 import { io } from 'socket.io-client';
 import './App.css';
 
-// Fix for mobile viewport height
+// Fix for mobile viewport height to prevent keyboard/toolbar jumps
 const setVH = () => {
   if (typeof window !== 'undefined') {
-    let vh = window.innerHeight * 0.01;
+    const vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
+    // Also set a fixed height for mobile avoid jumps
+    if (window.innerWidth <= 768) {
+       const editorHeight = Math.floor(window.innerHeight * 0.45);
+       document.documentElement.style.setProperty('--mobile-editor-height', `${editorHeight}px`);
+    }
   }
 };
 if (typeof window !== 'undefined') {
@@ -337,12 +342,25 @@ export default function App() {
                 </svg>
               </button>
             </div>
+            <style>
+            {`
+              @media (max-width: 768px) {
+                .editor-area {
+                  width: 100% !important;
+                  height: var(--mobile-editor-height, 45vh) !important;
+                  flex: none;
+                  overflow: hidden;
+                }
+              }
+            `}
+            </style>
             <div className="editor-pane">
               <CodeEditor
                 value={code}
                 language={getLanguageById(selectedLanguage).monacoId}
                 theme={theme}
                 onChange={(val) => setCode(val || '')}
+                options={{ fontLigatures: true, fontSize: 14 }}
               />
             </div>
           </div>
