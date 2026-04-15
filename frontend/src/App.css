@@ -118,7 +118,7 @@ body {
 @media (max-width: 768px) {
   .editor-area {
     width: 100% !important;
-    height: 45dvh !important; /* Slightly smaller to give console more room */
+    height: calc(var(--vh, 1vh) * 45) !important;
     flex: none;
     overflow: hidden;
   }

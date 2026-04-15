@@ -8,6 +8,18 @@ import { LANGUAGES, getLanguageById } from './constants/languages';
 import { io } from 'socket.io-client';
 import './App.css';
 
+// Fix for mobile viewport height
+const setVH = () => {
+  if (typeof window !== 'undefined') {
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  }
+};
+if (typeof window !== 'undefined') {
+  window.addEventListener('resize', setVH);
+  setVH();
+}
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 const socket = io(BACKEND_URL, { 
   autoConnect: false,

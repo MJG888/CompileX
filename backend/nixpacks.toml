@@ -1,2 +1,2 @@
 [phases.setup]
-nixPkgs = ["nodejs", "python3", "jdk"]
+nixPkgs = ["...", "nodejs", "python3", "jdk17"]
