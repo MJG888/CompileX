@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CompileX - Interactive Architecture</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape-cose-bilkent/4.1.0/cytoscape-cose-bilkent.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+
+        .header h1 {
+            margin-bottom: 5px;
+            font-size: 24px;
+        }
+
+        .header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        #cy {
+            flex: 1;
+            background: linear-gradient(to bottom, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .sidebar {
+            width: 300px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar h3 {
+            margin-bottom: 15px;
+            color: #667eea;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-box {
+            background: rgba(102, 126, 234, 0.1);
+            border-left: 3px solid #667eea;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .controls {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .legend {
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            margin-right: 8px;
+        }
+
+        .selected-info {
+            background: rgba(102, 126, 234, 0.15);
+            border: 1px solid #667eea;
+            border-radius: 4px;
+            padding: 12px;
+            margin-top: 15px;
+        }
+
+        .selected-info h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .selected-info p {
+            font-size: 12px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .tooltip {
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            position: fixed;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            border-left: 3px solid #667eea;
+        }
+
+        .tooltip.show {
+            display: block;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 250px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                max-height: 40vh;
+                border-left: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 5;
+                box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+                transition: max-height 0.3s ease;
+            }
+
+            .sidebar.collapsed {
+                max-height: 50px;
+                overflow: hidden;
+            }
+
+            #cy {
+                margin-bottom: 40vh;
+            }
+
+            .sidebar.collapsed ~ #cy {
+                margin-bottom: 0;
+            }
+
+            .toggle-sidebar {
+                display: block;
+                width: 100%;
+                background: #667eea;
+                color: white;
+                border: none;
+                padding: 12px;
+                text-align: center;
+                font-weight: 600;
+                cursor: pointer;
+                font-size: 14px;
+            }
+
+            .controls {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                padding: 12px;
+            }
+
+            .btn {
+                padding: 8px;
+                font-size: 11px;
+            }
+
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .header p {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                max-height: 35vh;
+            }
+
+            #cy {
+                margin-bottom: 35vh;
+            }
+
+            .header h1 {
+                font-size: 16px;
+            }
+
+            .header {
+                padding: 10px 15px;
+            }
+
+            .legend {
+                font-size: 11px;
+            }
+
+            .info-box {
+                font-size: 11px;
+                padding: 8px;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+                padding: 8px;
+            }
+        }
+
+        .highlight {
+            box-shadow: 0 0 15px #667eea;
+        }
+
+        .toggle-sidebar {
+            display: none;
+        }
+
+        .sidebar-content {
+            overflow-y: auto;
+            max-height: calc(40vh - 50px);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 CompileX - Interactive Architecture</h1>
+        <p>Click nodes to explore • Scroll to zoom • Drag to pan</p>
+    </div>
+
+    <div class="container">
+        <div id="cy"></div>
+        
+        <div class="sidebar" id="sidebar">
+            <button class="toggle-sidebar" id="toggleSidebar" onclick="toggleSidebar()">📋 Show Info</button>
+            <div class="sidebar-content">
+            <div class="controls">
+                <button class="btn" onclick="fitGraph()">🎯 Fit View</button>
+                <button class="btn" onclick="resetHighlight()">✨ Clear Highlight</button>
+                <button class="btn" onclick="startLayout()">🔄 Refresh Layout</button>
+            </div>
+
+            <div>
+                <h3>📖 Guide</h3>
+                <div class="info-box">
+                    <strong>Click any component</strong> to see detailed information and connected nodes.
+                </div>
+                <div class="info-box">
+                    <strong>Scroll</strong> to zoom in/out.
+                </div>
+                <div class="info-box">
+                    <strong>Drag</strong> the canvas to pan.
+                </div>
+            </div>
+
+            <div class="legend">
+                <h3>🎨 Legend</h3>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #3b82f6;"></div>
+                    <span>Frontend Components</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #8b5cf6;"></div>
+                    <span>Services</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #10b981;"></div>
+                    <span>Backend</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #f59e0b;"></div>
+                    <span>Execution Engine</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ef4444;"></div>
+                    <span>External APIs</span>
+                </div>
+            </div>
+
+            <div id="selectedInfo" class="selected-info" style="display: none;">
+                <h4 id="selectedTitle"></h4>
+                <p id="selectedDesc"></p>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        const nodeDescriptions = {
+            'navbar': { title: '🎨 Navbar', desc: 'Theme toggle and language selection controls. Manages UI preferences and visual styling.' },
+            'editor': { title: '✏️ Code Editor', desc: 'Main code editing area with syntax highlighting, multi-file support, and language-specific templates.' },
+            'console': { title: '📋 Console', desc: 'Displays program output, error messages, and execution results from the backend.' },
+            'aipanel': { title: '🤖 AI Panel', desc: 'AI-powered features: code generation, debugging, code explanation, optimization, and language conversion.' },
+            'statusbar': { title: '📊 Status Bar', desc: 'Shows execution statistics including runtime duration and memory usage.' },
+            'judge0service': { title: '📡 Judge0 Service', desc: 'Frontend service that handles code execution requests with Base64 encoding/decoding.' },
+            'geminiservice': { title: '🧠 AI Service', desc: 'Manages AI feature requests and integration with Groq/Llama API.' },
+            'server': { title: '🖥️ Express Server', desc: 'Node.js backend server running on port 5000, handles all HTTP requests.' },
+            'executeapi': { title: 'POST /execute', desc: 'API endpoint that receives code execution requests and routes to execute.js.' },
+            'execute': { title: '⚙️ execute.js', desc: 'Core execution engine that coordinates code compilation and execution across languages.' },
+            'langmap': { title: '📋 Language Map', desc: 'Maps Judge0 language IDs to appropriate handlers for Python, JavaScript, Java, C++, and C.' },
+            'judge0api': { title: '⚡ Judge0 API', desc: 'External code execution service that compiles and runs code securely in isolated environments.' },
+            'groqapi': { title: '🧠 Groq API', desc: 'External AI service using Llama-3 model for code generation and analysis tasks.' },
+            'tempdir': { title: '🗂️ Temp Directory', desc: 'Temporary storage for code files and execution artifacts during the compilation process.' }
+        };
+
+        // Mobile detection
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
+
+        const elements = [
+            // Nodes
+            { data: { id: 'navbar', label: '🎨 Navbar', category: 'frontend' } },
+            { data: { id: 'editor', label: '✏️ Editor', category: 'frontend' } },
+            { data: { id: 'console', label: '📋 Console', category: 'frontend' } },
+            { data: { id: 'aipanel', label: '🤖 AI Panel', category: 'frontend' } },
+            { data: { id: 'statusbar', label: '📊 Status', category: 'frontend' } },
+            
+            { data: { id: 'judge0service', label: '📡 Judge0 Service', category: 'service' } },
+            { data: { id: 'geminiservice', label: '🧠 AI Service', category: 'service' } },
+            
+            { data: { id: 'server', label: '🖥️ Server', category: 'backend' } },
+            { data: { id: 'executeapi', label: 'POST /execute', category: 'backend' } },
+            
+            { data: { id: 'execute', label: '⚙️ execute.js', category: 'engine' } },
+            { data: { id: 'langmap', label: '📋 Language Map', category: 'engine' } },
+            
+            { data: { id: 'judge0api', label: '⚡ Judge0 API', category: 'external' } },
+            { data: { id: 'groqapi', label: '🧠 Groq API', category: 'external' } },
+            
+            { data: { id: 'tempdir', label: '🗂️ Temp Dir', category: 'storage' } },
+
+            // Edges - Code Execution Flow
+            { data: { source: 'editor', target: 'judge0service', label: 'Run Code' } },
+            { data: { source: 'judge0service', target: 'executeapi', label: 'HTTP POST' } },
+            { data: { source: 'executeapi', target: 'execute', label: 'Process' } },
+            { data: { source: 'execute', target: 'langmap', label: 'Map Language' } },
+            { data: { source: 'langmap', target: 'judge0api', label: 'Execute' } },
+            { data: { source: 'judge0api', target: 'execute', label: 'Results' } },
+            { data: { source: 'execute', target: 'judge0service', label: 'Response' } },
+            { data: { source: 'judge0service', target: 'console', label: 'Display' } },
+            { data: { source: 'console', target: 'statusbar', label: 'Update Stats' } },
+
+            // AI Features Flow
+            { data: { source: 'editor', target: 'geminiservice', label: 'AI Request' } },
+            { data: { source: 'aipanel', target: 'geminiservice', label: 'User Input' } },
+            { data: { source: 'geminiservice', target: 'groqapi', label: 'API Call' } },
+            { data: { source: 'groqapi', target: 'aipanel', label: 'Response' } },
+
+            // UI Interactions
+            { data: { source: 'navbar', target: 'editor', label: 'Select Lang' } },
+
+            // Temp storage
+            { data: { source: 'execute', target: 'tempdir', label: 'Create/Use' } }
+        ];
+
+        const style = [
+            {
+                selector: 'node',
+                style: {
+                    'background-color': function(ele) {
+                        const cat = ele.data('category');
+                        switch(cat) {
+                            case 'frontend': return '#3b82f6';
+                            case 'service': return '#8b5cf6';
+                            case 'backend': return '#10b981';
+                            case 'engine': return '#f59e0b';
+                            case 'external': return '#ef4444';
+                            case 'storage': return '#6366f1';
+                            default: return '#7c3aed';
+                        }
+                    },
+                    'label': 'data(label)',
+                    'text-valign': 'center',
+                    'text-halign': 'center',
+                    'width': '80px',
+                    'height': '80px',
+                    'font-size': '11px',
+                    'color': '#fff',
+                    'border-width': '2px',
+                    'border-color': 'rgba(255, 255, 255, 0.3)',
+                    'text-wrap': 'wrap',
+                    'text-max-width': '70px',
+                    'padding': '5px'
+                }
+            },
+            {
+                selector: 'edge',
+                style: {
+                    'width': 2,
+                    'line-color': 'rgba(255, 255, 255, 0.2)',
+                    'target-arrow-color': 'rgba(255, 255, 255, 0.2)',
+                    'target-arrow-shape': 'triangle',
+                    'label': 'data(label)',
+                    'font-size': '10px',
+                    'color': 'rgba(255, 255, 255, 0.7)',
+                    'text-background-color': 'rgba(0, 0, 0, 0.7)',
+                    'text-background-padding': '3px',
+                    'text-background-opacity': 1,
+                    'text-background-shape': 'rectangle'
+                }
+            },
+            {
+                selector: 'node:hover',
+                style: {
+                    'border-width': '3px',
+                    'border-color': '#ffff00',
+                    'box-shadow': '0 0 15px rgba(102, 126, 234, 0.8)'
+                }
+            },
+            {
+                selector: 'node.selected',
+                style: {
+                    'border-width': '3px',
+                    'border-color': '#667eea',
+                    'box-shadow': '0 0 20px rgba(102, 126, 234, 1)',
+                    'background-color': function(ele) {
+                        const cat = ele.data('category');
+                        const colors = {
+                            'frontend': '#5ba3ff',
+                            'service': '#a78bff',
+                            'backend': '#34d399',
+                            'engine': '#facc15',
+                            'external': '#f87171',
+                            'storage': '#818cf8'
+                        };
+                        return colors[cat] || '#9f7aea';
+                    }
+                }
+            },
+            {
+                selector: 'edge.highlight',
+                style: {
+                    'line-color': '#667eea',
+                    'target-arrow-color': '#667eea',
+                    'width': 3
+                }
+            }
+        ];
+
+        const cy = cytoscape({
+            container: document.getElementById('cy'),
+            elements: elements,
+            style: style,
+            layout: {
+                name: 'cose-bilkent',
+                animate: true,
+                animationDuration: 1000,
+                directed: true,
+                fit: true,
+                padding: 30
+            }
+        });
+
+        // Event handlers
+        cy.on('tap', 'node', function(evt) {
+            const node = evt.target;
+            const nodeId = node.id();
+            const desc = nodeDescriptions[nodeId];
+
+            // Remove previous selection
+            cy.$('node').removeClass('selected');
+            cy.$('edge').removeClass('highlight');
+
+            // Select clicked node
+            node.addClass('selected');
+
+            // Highlight connected edges
+            const incomers = node.incomers().edges();
+            const outgoers = node.outgoers().edges();
+            incomers.addClass('highlight');
+            outgoers.addClass('highlight');
+
+            // Show info
+            if (desc) {
+                document.getElementById('selectedTitle').textContent = desc.title;
+                document.getElementById('selectedDesc').textContent = desc.desc;
+                document.getElementById('selectedInfo').style.display = 'block';
+                
+                // Auto-expand sidebar on mobile when node is selected
+                if (isMobile) {
+                    document.getElementById('sidebar').classList.remove('collapsed');
+                    document.getElementById('toggleSidebar').textContent = '📋 Hide Info';
+                }
+            }
+        });
+
+        cy.on('tap', function(evt) {
+            if (evt.target === cy) {
+                cy.$('node').removeClass('selected');
+                cy.$('edge').removeClass('highlight');
+                document.getElementById('selectedInfo').style.display = 'none';
+            }
+        });
+
+        // Tooltip on hover
+        cy.on('mouseover', 'node', function(evt) {
+            const node = evt.target;
+            const desc = nodeDescriptions[node.id()];
+            if (desc) {
+                const tooltip = document.getElementById('tooltip');
+                tooltip.textContent = desc.title + ': ' + desc.desc;
+                tooltip.classList.add('show');
+            }
+        });
+
+        cy.on('mouseout', 'node', function() {
+            document.getElementById('tooltip').classList.remove('show');
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            const tooltip = document.getElementById('tooltip');
+            if (tooltip.classList.contains('show')) {
+                tooltip.style.left = (e.pageX + 10) + 'px';
+                tooltip.style.top = (e.pageY + 10) + 'px';
+            }
+        });
+
+        // Utility functions
+        function fitGraph() {
+            cy.fit(null, 30);
+        }
+
+        function resetHighlight() {
+            cy.$('node').removeClass('selected');
+            cy.$('edge').removeClass('highlight');
+            document.getElementById('selectedInfo').style.display = 'none';
+        }
+
+        function startLayout() {
+            const layout = cy.layout({
+                name: 'cose-bilkent',
+                animate: true,
+                animationDuration: 1000,
+                directed: true,
+                fit: true,
+                padding: 30,
+                randomize: true
+            });
+            layout.run();
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+            const btn = document.getElementById('toggleSidebar');
+            if (sidebar.classList.contains('collapsed')) {
+                btn.textContent = '📋 Show Info';
+            } else {
+                btn.textContent = '📋 Hide Info';
+            }
+        }
+
+        // Initial fit
+        setTimeout(() => {
+            cy.fit(null, 30);
+        }, 500);
+
+        // Zoom and pan
+        cy.zoomingEnabled(true);
+        cy.panningEnabled(true);
+        cy.userZoomingEnabled(true);
+        cy.userPanningEnabled(true);
+
+        // Scroll to zoom
+        cy.on('wheel', function(event) {
+            event.preventDefault();
+        });
+
+        // Mobile optimization
+        if (isMobile) {
+            // Collapse sidebar by default on mobile
+            document.getElementById('sidebar').classList.add('collapsed');
+            document.getElementById('toggleSidebar').textContent = '📋 Show Info';
+        } else {
+            // Hide toggle button on desktop
+            document.getElementById('toggleSidebar').style.display = 'none';
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth <= 768) {
+                if (!document.getElementById('toggleSidebar').style.display || 
+                    document.getElementById('toggleSidebar').style.display === 'none') {
+                    document.getElementById('toggleSidebar').style.display = 'block';
+                }
+            } else {
+                document.getElementById('toggleSidebar').style.display = 'none';
+                document.getElementById('sidebar').classList.remove('collapsed');
+            }
+        });
+    </script>
+</body>
+</html>

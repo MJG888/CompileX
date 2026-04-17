@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CompileX - All Diagrams</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px 12px;
+            }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                max-width: 100%;
+            }
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 1024px) {
+            .header h1 {
+                font-size: 28px;
+            }
+            .header p {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+            .header h1 {
+                font-size: 24px;
+                margin-bottom: 8px;
+            }
+            .header p {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 12px 15px;
+            }
+            .header h1 {
+                font-size: 20px;
+            }
+            .header p {
+                font-size: 12px;
+            }
+        }
+
+        .diagrams-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .diagrams-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .diagrams-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        .diagram-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .diagram-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .diagram-card:hover {
+                transform: translateY(-3px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .diagram-card:hover {
+                transform: none;
+            }
+        }
+
+        .diagram-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .diagram-header h2 {
+            font-size: 18px;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .diagram-header {
+                padding: 15px;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+            .diagram-header h2 {
+                font-size: 16px;
+                flex: 1 0 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .diagram-header {
+                padding: 12px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .diagram-header h2 {
+                font-size: 14px;
+            }
+        }
+
+        .diagram-title {
+            flex: 1;
+        }
+
+        .export-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .export-btns {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .export-btns {
+                flex-direction: column;
+                gap: 4px;
+                width: 100%;
+            }
+        }
+
+        .export-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .export-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: white;
+        }
+
+        @media (max-width: 768px) {
+            .export-btn {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .export-btn {
+                padding: 10px 16px;
+                font-size: 12px;
+                width: 100%;
+            }
+        }
+
+        .diagram-body {
+            padding: 20px;
+            background: #f8f9fa;
+            min-height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: auto;
+        }
+
+        @media (max-width: 768px) {
+            .diagram-body {
+                min-height: 300px;
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .diagram-body {
+                min-height: 250px;
+                padding: 10px;
+            }
+        }
+
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            max-width: 100%;
+            width: 100%;
+        }
+
+        .mermaid svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .download-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .download-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .download-section {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            .download-section h3 {
+                font-size: 18px;
+                margin-bottom: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .download-section {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            .download-section h3 {
+                font-size: 16px;
+            }
+        }
+
+        .download-all-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .download-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .download-all-btn:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .download-all-btn {
+                padding: 12px 24px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .download-all-btn {
+                display: block;
+                width: 100%;
+                padding: 14px 20px;
+                font-size: 14px;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .footer {
+                margin-top: 30px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer {
+                margin-top: 20px;
+                font-size: 11px;
+            }
+        }
+
+        .status-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .status-message.show {
+            display: block;
+        }
+
+        .status-message.success {
+            border-left: 4px solid #10b981;
+            color: #10b981;
+        }
+
+        .status-message.info {
+            border-left: 4px solid #667eea;
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .diagrams-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .export-btns {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 CompileX - Architecture Diagrams</h1>
+            <p>All generated diagrams - Download as PNG or SVG</p>
+        </div>
+
+        <div class="download-section">
+            <h3>📥 Download All Diagrams</h3>
+            <button class="download-all-btn" onclick="downloadAll()">⬇️ Download All as ZIP</button>
+        </div>
+
+        <div class="diagrams-grid">
+            <!-- Diagram 1: Architecture Flow -->
+            <div class="diagram-card">
+                <div class="diagram-header">
+                    <div class="diagram-title">
+                        <h2>1. Architecture Flow</h2>
+                    </div>
+                    <div class="export-btns">
+                        <button class="export-btn" onclick="downloadDiagram(1, 'png')">📥 PNG</button>
+                        <button class="export-btn" onclick="downloadDiagram(1, 'svg')">📥 SVG</button>
+                    </div>
+                </div>
+                <div class="diagram-body">
+                    <div class="mermaid" id="diagram1">
+graph TB
+    subgraph Frontend["Frontend (React + Vite)"]
+        Navbar["🎨 Navbar<br/>Theme & Language"]
+        Editor["✏️ Code Editor<br/>Write/Edit Code"]
+        Console["📋 Console<br/>Output & Errors"]
+        AIPanel["🤖 AI Panel<br/>Generate/Debug/Explain"]
+        StatusBar["📊 Status Bar<br/>Execution Stats"]
+    end
+
+    subgraph Services["Frontend Services"]
+        Judge0Service["📡 judge0.js<br/>Execute Code"]
+        GeminiService["🧠 gemini.js<br/>AI Features"]
+    end
+
+    subgraph Backend["Backend (Express.js)"]
+        Server["🖥️ Express Server<br/>Port 5000"]
+        ExecuteAPI["POST /execute<br/>Code Execution"]
+    end
+
+    subgraph Execution["Execution Engine"]
+        Execute["execute.js<br/>Language Handler"]
+        LangMap["Language Map<br/>Python/JS/Java/C++/C"]
+    end
+
+    subgraph ExternalAPIs["External APIs"]
+        Judge0["⚡ Judge0 API<br/>Code Compilation"]
+        Groq["🧠 Groq/Llama API<br/>AI Assistance"]
+    end
+
+    subgraph Database["Storage"]
+        TempDir["🗂️ Temp Directory<br/>Execution Files"]
+    end
+
+    Editor -->|Edit Code| Navbar
+    Navbar -->|Select Language| Editor
+    
+    Editor -->|User Clicks Run| Judge0Service
+    Judge0Service -->|HTTP POST<br/>Base64 Encoded Code| ExecuteAPI
+    ExecuteAPI -->|Process Files| Execute
+    Execute -->|Map Language ID| LangMap
+    LangMap -->|Send to Judge0| Judge0
+    Judge0 -->|Compile & Run| Judge0
+    Judge0 -->|Return stdout/stderr| Execute
+    Execute -->|JSON Response| Judge0Service
+    Judge0Service -->|Display Results| Console
+    
+    Editor -->|Generate/Debug/Explain| GeminiService
+    AIPanel -->|AI Request| GeminiService
+    GeminiService -->|API Call| Groq
+    Groq -->|AI Response| GeminiService
+    GeminiService -->|Display in AI Panel| AIPanel
+    
+    Console -->|Update Execution Stats| StatusBar
+    
+    Execute -.->|Create/Use| TempDir
+    
+    style Frontend fill:#3b82f6,color:#fff,stroke:#1e40af,stroke-width:2px
+    style Services fill:#8b5cf6,color:#fff,stroke:#6d28d9,stroke-width:2px
+    style Backend fill:#10b981,color:#fff,stroke:#059669,stroke-width:2px
+    style Execution fill:#f59e0b,color:#fff,stroke:#d97706,stroke-width:2px
+    style ExternalAPIs fill:#ef4444,color:#fff,stroke:#dc2626,stroke-width:2px
+    style Database fill:#6366f1,color:#fff,stroke:#4f46e5,stroke-width:2px
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diagram 2: Execution Sequence -->
+            <div class="diagram-card">
+                <div class="diagram-header">
+                    <div class="diagram-title">
+                        <h2>2. Execution Sequence</h2>
+                    </div>
+                    <div class="export-btns">
+                        <button class="export-btn" onclick="downloadDiagram(2, 'png')">📥 PNG</button>
+                        <button class="export-btn" onclick="downloadDiagram(2, 'svg')">📥 SVG</button>
+                    </div>
+                </div>
+                <div class="diagram-body">
+                    <div class="mermaid" id="diagram2">
+sequenceDiagram
+    participant User
+    participant Frontend as Frontend<br/>React
+    participant Judge0Svc as judge0.js<br/>Service
+    participant Backend as Express<br/>Server
+    participant Execute as execute.js
+    participant Judge0API as Judge0 API
+    participant Console as Console<br/>Component
+
+    User->>Frontend: ✍️ Write Code
+    User->>Frontend: 🎯 Select Language
+    User->>Frontend: ▶️ Click Run Button
+
+    Frontend->>Judge0Svc: 📤 Send Code<br/>(Base64 Encoded)
+    Judge0Svc->>Backend: POST /execute<br/>files, language_id, stdin
+
+    Backend->>Execute: Process Execution<br/>Request
+
+    Execute->>Execute: 🔍 Find Main File
+    Execute->>Execute: 📋 Map Language ID
+    
+    Execute->>Judge0API: 🚀 Send to Judge0<br/>source_code, language_id, stdin
+    
+    Note over Judge0API: ⏳ Compilation & Execution
+    Judge0API->>Judge0API: 🔨 Compile Code
+    Judge0API->>Judge0API: ▶️ Run Executable
+    Judge0API->>Judge0API: 📊 Measure Time/Memory
+    
+    Judge0API-->>Execute: ✅ Results<br/>stdout, stderr, status
+
+    Execute->>Execute: 📝 Decode Output<br/>(Base64 → UTF-8)
+    Execute->>Execute: 📦 Format Response
+
+    Backend-->>Judge0Svc: JSON Response<br/>stdout, stderr, time, memory, status
+
+    Judge0Svc->>Frontend: ✅ Update State
+    Frontend->>Console: 📋 Display Output
+    Frontend->>Console: 📊 Update Stats<br/>(Time & Memory)
+
+    Console-->>User: ✨ Show Results
+    
+    Note over Frontend: 🤖 AI Features<br/>Available Anytime
+    User->>Frontend: 🧠 Ask for Help<br/>(Debug/Explain/Generate)
+    Frontend->>Frontend: Call gemini.js
+    Frontend->>Frontend: Send to Groq API
+    Frontend->>Frontend: Display AI Response
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diagram 3: Component Interaction -->
+            <div class="diagram-card">
+                <div class="diagram-header">
+                    <div class="diagram-title">
+                        <h2>3. Component Interaction</h2>
+                    </div>
+                    <div class="export-btns">
+                        <button class="export-btn" onclick="downloadDiagram(3, 'png')">📥 PNG</button>
+                        <button class="export-btn" onclick="downloadDiagram(3, 'svg')">📥 SVG</button>
+                    </div>
+                </div>
+                <div class="diagram-body">
+                    <div class="mermaid" id="diagram3">
+graph TD
+    App["App.jsx<br/>Main Container<br/>State Management"]
+    
+    subgraph Components["UI Components"]
+        Navbar["Navbar<br/>Theme Toggle<br/>Language Select"]
+        Editor["Code Editor<br/>File Management<br/>Multi-file Support"]
+        Console["Console<br/>Output Display<br/>Error Handling"]
+        AIPanel["AI Panel<br/>Generate Code<br/>Debug Issues<br/>Explain Code<br/>Optimize Code<br/>Language Convert"]
+        StatusBar["Status Bar<br/>Execution Time<br/>Memory Usage<br/>Status Badge"]
+    end
+    
+    subgraph Backend["Backend Logic"]
+        Socket["Socket.io<br/>Real-time Updates"]
+        Judge0Service["judge0.js<br/>Code Execution<br/>Base64 Encoding"]
+        GeminiService["gemini.js<br/>AI Integration<br/>Groq API"]
+    end
+    
+    subgraph StateManagement["State Management"]
+        Theme["Theme State<br/>dark/light"]
+        Language["Selected Language<br/>python/js/java/cpp/c"]
+        Files["File State<br/>By Language"]
+        Terminal["Terminal Data<br/>Execution Output"]
+        Loading["Loading State<br/>Execution Status"]
+    end
+    
+    subgraph Constants["Constants & Config"]
+        Languages["Language Definitions<br/>Syntax Highlighting<br/>Default Code<br/>Language IDs"]
+    end
+    
+    App -->|Props| Navbar
+    App -->|Props| Editor
+    App -->|Props| Console
+    App -->|Props| AIPanel
+    App -->|Props| StatusBar
+    
+    App -->|State Updates| Theme
+    App -->|State Updates| Language
+    App -->|State Updates| Files
+    App -->|State Updates| Terminal
+    App -->|State Updates| Loading
+    
+    Navbar -->|Change Theme| Theme
+    Navbar -->|Select Language| Language
+    
+    Language -->|Get Config| Languages
+    Editor -->|Read Config| Languages
+    
+    Editor -->|Write/Edit| Files
+    Editor -->|Trigger| Judge0Service
+    
+    Judge0Service -->|HTTP POST| Backend
+    Judge0Service -->|Update| Terminal
+    Judge0Service -->|Toggle| Loading
+    
+    Console -->|Display| Terminal
+    Console -->|Show| Loading
+    Console -->|Update| StatusBar
+    
+    AIPanel -->|User Input| GeminiService
+    GeminiService -->|API Call| Backend
+    GeminiService -->|Display| AIPanel
+    
+    Socket -->|Real-time| Terminal
+    Socket -->|Live Updates| Console
+    
+    Navbar -->|Style| StatusBar
+    
+    style App fill:#2563eb,color:#fff,stroke:#1e40af,stroke-width:2px
+    style Components fill:#7c3aed,color:#fff,stroke:#6d28d9,stroke-width:2px
+    style Backend fill:#059669,color:#fff,stroke:#047857,stroke-width:2px
+    style StateManagement fill:#dc2626,color:#fff,stroke:#b91c1c,stroke-width:2px
+    style Constants fill:#f59e0b,color:#fff,stroke:#d97706,stroke-width:2px
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>💾 All diagrams are saved as high-quality images. Use the download buttons to export individually or download all at once.</p>
+        </div>
+    </div>
+
+    <div class="status-message" id="statusMessage"></div>
+
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+        mermaid.contentLoaded();
+
+        function showStatus(message, type = 'success') {
+            const statusMsg = document.getElementById('statusMessage');
+            statusMsg.textContent = message;
+            statusMsg.className = `status-message show ${type}`;
+            setTimeout(() => {
+                statusMsg.classList.remove('show');
+            }, 3000);
+        }
+
+        async function downloadDiagram(diagramNum, format) {
+            const diagramElement = document.querySelector(`#diagram${diagramNum}`);
+            const svgElement = diagramElement.querySelector('svg');
+            
+            if (!svgElement) {
+                showStatus('Diagram is still loading, please try again...', 'info');
+                return;
+            }
+
+            showStatus('📥 Preparing download...', 'info');
+
+            if (format === 'svg') {
+                downloadSVG(svgElement, `CompileX-Diagram-${diagramNum}`);
+            } else if (format === 'png') {
+                downloadPNG(svgElement, `CompileX-Diagram-${diagramNum}`);
+            }
+        }
+
+        function downloadSVG(svgElement, filename) {
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const blob = new Blob([svgData], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${filename}.svg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showStatus(`✅ Downloaded: ${filename}.svg`, 'success');
+        }
+
+        async function downloadPNG(svgElement, filename) {
+            try {
+                const canvas = await html2canvas(svgElement, {
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                    logging: false
+                });
+                
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `${filename}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showStatus(`✅ Downloaded: ${filename}.png`, 'success');
+            } catch (error) {
+                showStatus('❌ Error downloading PNG. Try SVG format instead.', 'info');
+                console.error(error);
+            }
+        }
+
+        async function downloadAll() {
+            showStatus('📦 Preparing all downloads...', 'info');
+
+            // Download all SVGs (faster and more reliable)
+            const diagrams = [1, 2, 3];
+            for (const diagramNum of diagrams) {
+                const diagramElement = document.querySelector(`#diagram${diagramNum}`);
+                const svgElement = diagramElement.querySelector('svg');
+                
+                if (svgElement) {
+                    const svgData = new XMLSerializer().serializeToString(svgElement);
+                    const blob = new Blob([svgData], { type: 'image/svg+xml' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `CompileX-Diagram-${diagramNum}.svg`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                    
+                    // Small delay between downloads
+                    await new Promise(r => setTimeout(r, 300));
+                }
+            }
+            
+            showStatus('✅ All diagrams downloaded! (SVG format)', 'success');
+        }
+    </script>
+</body>
+</html>
