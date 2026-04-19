@@ -1,17 +1,20 @@
 import React from 'react';
-import { isMockMode } from '../../services/judge0';
 import './StatusBar.css';
 
-export default function StatusBar({ selectedLanguage, linesCount, charCount }) {
-  const mock = isMockMode();
-
+export default function StatusBar({ selectedLanguage, linesCount, charCount, connected }) {
   return (
     <div className="status-bar">
       <div className="status-left">
-        {mock && (
-          <span className="status-item demo-badge" title="Add API keys to .env for live execution">
-            <span className="demo-dot" />
-            Demo Mode
+        {connected === false && (
+          <span className="status-item offline-badge" title="Backend server not connected">
+            <span className="offline-dot" />
+            Offline
+          </span>
+        )}
+        {connected === true && (
+          <span className="status-item connected-badge">
+            <span className="connected-dot" />
+            Connected
           </span>
         )}
         <span className="status-item">

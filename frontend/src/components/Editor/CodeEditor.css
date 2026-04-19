@@ -1,9 +1,14 @@
 .code-editor-wrapper {
   height: 100%;
   width: 100%;
-  overflow: auto;
+  overflow: hidden; /* Let Monaco handle its own scrolling — no double scroll */
   border-radius: 0;
-  touch-action: auto; /* Allow browser gestures like pinch-zoom */
+  position: relative;
+}
+
+/* Ensure Monaco's internal container doesn't get clipped improperly on mobile */
+.code-editor-wrapper .monaco-editor {
+  touch-action: pan-x pan-y; /* Allow scroll gestures to pass through */
 }
 
 .editor-loading {
@@ -24,9 +29,17 @@
   border: 3px solid var(--border);
   border-top-color: var(--accent);
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  animation: editorSpin 0.8s linear infinite;
 }
 
-@keyframes spin {
+@keyframes editorSpin {
   to { transform: rotate(360deg); }
+}
+
+/* Mobile touch improvements */
+@media (max-width: 768px) {
+  .code-editor-wrapper {
+    touch-action: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }

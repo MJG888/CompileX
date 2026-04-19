@@ -1,9 +1,12 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import MonacoEditor from '@monaco-editor/react';
 import './CodeEditor.css';
 
+// Detect mobile once
+const isMobile = typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent);
+
 // Custom dark theme definition
-const defineTheme = (monaco) => {
+const defineThemes = (monaco) => {
   monaco.editor.defineTheme('compilex-dark', {
     base: 'vs-dark',
     inherit: true,
@@ -17,17 +20,18 @@ const defineTheme = (monaco) => {
       { token: 'variable', foreground: 'eeffff' },
       { token: 'operator', foreground: '89ddff' },
       { token: 'delimiter', foreground: '89ddff' },
+      { token: 'identifier', foreground: 'eeffff' },
     ],
     colors: {
-      'editor.background': '#000000',
+      'editor.background': '#0a0a0f',
       'editor.foreground': '#e2e8f0',
-      'editor.lineHighlightBackground': '#111111',
+      'editor.lineHighlightBackground': '#12121f',
       'editor.selectionBackground': '#7c3aed33',
       'editor.inactiveSelectionBackground': '#7c3aed1a',
       'editorLineNumber.foreground': '#3d4461',
       'editorLineNumber.activeForeground': '#7c3aed',
       'editorCursor.foreground': '#06d6a0',
-      'editorGutter.background': '#000000',
+      'editorGutter.background': '#0a0a0f',
       'editorWidget.background': '#1a1a2e',
       'editorWidget.border': '#2d2d4e',
       'editorSuggestWidget.background': '#1a1a2e',
@@ -35,8 +39,9 @@ const defineTheme = (monaco) => {
       'editorSuggestWidget.selectedBackground': '#7c3aed22',
       'input.background': '#0d0d1a',
       'focusBorder': '#7c3aed',
-      'scrollbarSlider.background': '#2d2d4e99',
+      'scrollbarSlider.background': '#2d2d4e66',
       'scrollbarSlider.hoverBackground': '#7c3aed44',
+      'scrollbarSlider.activeBackground': '#7c3aed66',
     },
   });
 
@@ -48,6 +53,8 @@ const defineTheme = (monaco) => {
       { token: 'keyword', foreground: '7c3aed', fontStyle: 'bold' },
       { token: 'string', foreground: '059669' },
       { token: 'number', foreground: 'e11d48' },
+      { token: 'type', foreground: '6d28d9' },
+      { token: 'function', foreground: '2563eb' },
     ],
     colors: {
       'editor.background': '#f8fafc',
@@ -66,72 +73,112 @@ export default function CodeEditor({ value, language, theme, onChange }) {
   const editorRef = useRef(null);
   const monacoRef = useRef(null);
 
+  // Register themes BEFORE mount to avoid flash
+  const handleBeforeMount = (monaco) => {
+    defineThemes(monaco);
+  };
+
   const handleEditorMount = (editor, monaco) => {
     editorRef.current = editor;
     monacoRef.current = monaco;
-    window.monacoEditor = editor; // Stability fix: Expose for resize recalculation
-    defineTheme(monaco);
-    monaco.editor.setTheme(theme === 'dark' ? 'compilex-dark' : 'compilex-light');
+    window.monacoEditor = editor;
 
-    // Custom font
-    editor.updateOptions({ fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace" });
+    // Apply custom font
+    editor.updateOptions({
+      fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace",
+    });
+
+    // Mobile: focus handling for virtual keyboard
+    if (isMobile) {
+      editor.onDidFocusEditorText(() => {
+        // Small delay to let keyboard animate
+        setTimeout(() => editor.layout(), 300);
+      });
+    }
   };
 
-  // Update theme when it changes
+  // Update theme reactively
   useEffect(() => {
     if (monacoRef.current) {
       monacoRef.current.editor.setTheme(theme === 'dark' ? 'compilex-dark' : 'compilex-light');
     }
   }, [theme]);
 
-  const editorOptions = {
-    fontSize: 14,
-    lineHeight: 21,
+  // Memoize options to avoid unnecessary re-renders
+  const editorOptions = useMemo(() => ({
+    fontSize: isMobile ? 13 : 14,
+    lineHeight: isMobile ? 20 : 22,
     minimap: { enabled: false },
-    scrollBeyondLastLine: false,
+    scrollBeyondLastLine: true,
     automaticLayout: true,
     fixedOverflowWidgets: true,
-    theme: theme === 'dark' ? 'vs-dark' : 'vs-light',
-    fontFamily: 'JetBrains Mono, monospace',
+    fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+    fontLigatures: true,
+
+    // ─── CRITICAL: Paste fix ───
+    formatOnPaste: false,       // Do NOT re-format pasted code
+    autoIndent: 'keep',         // Preserve original indentation
+    trimAutoWhitespace: false,  // Don't strip whitespace on paste
+
+    // ─── Scroll config ───
+    wordWrap: isMobile ? 'on' : 'off', // Wrap on mobile, scroll on desktop
     mouseWheelZoom: true,
     smoothScrolling: true,
-    wordWrap: 'on', // Better for small screens
-    lineNumbersMinChars: 3,
     scrollbar: {
       vertical: 'visible',
-      horizontal: 'visible',
+      horizontal: isMobile ? 'hidden' : 'visible',
       useShadows: false,
-      verticalScrollbarSize: 10,
+      verticalScrollbarSize: isMobile ? 6 : 10,
       horizontalScrollbarSize: 10,
+      verticalSliderSize: isMobile ? 6 : 10,
     },
+
+    // ─── Visual refinements ───
     renderLineHighlight: 'all',
     cursorStyle: 'line',
     cursorBlinking: 'smooth',
-    contextmenu: true,
+    cursorSmoothCaretAnimation: 'on',
+    contextmenu: !isMobile,     // Disable right-click menu on mobile (interferes with touch)
     selectOnLineNumbers: true,
     roundedSelection: true,
     bracketPairColorization: { enabled: true },
+    guides: {
+      bracketPairs: true,
+      indentation: true,
+    },
     padding: { top: 16, bottom: 16 },
     lineNumbers: 'on',
+    lineNumbersMinChars: 3,
     glyphMargin: false,
     folding: true,
     showFoldingControls: 'mouseover',
     links: true,
     colorDecorators: true,
     'semanticHighlighting.enabled': true,
-    formatOnPaste: true,
-    autoIndent: 'full',
-    detectIndentation: true,
-    trimAutoWhitespace: true,
+
+    // ─── Mobile-specific ───
+    ...(isMobile ? {
+      lineDecorationsWidth: 8,
+      folding: false,                // Save space on mobile
+      lineNumbersMinChars: 2,
+      overviewRulerLanes: 0,
+      hideCursorInOverviewRuler: true,
+      overviewRulerBorder: false,
+    } : {}),
+
+    // ─── Autocomplete ───
     quickSuggestions: {
       other: true,
       comments: false,
-      strings: true
+      strings: true,
     },
-    parameterHints: {
-      enabled: true
-    }
-  };
+    parameterHints: { enabled: true },
+    suggestOnTriggerCharacters: true,
+    acceptSuggestionOnEnter: 'on',
+    tabCompletion: 'on',
+  }), []);
+
+  const currentTheme = theme === 'dark' ? 'compilex-dark' : 'compilex-light';
 
   return (
     <div className="code-editor-wrapper">
@@ -139,8 +186,9 @@ export default function CodeEditor({ value, language, theme, onChange }) {
         height="100%"
         language={language}
         value={value}
-        theme={theme === 'dark' ? 'compilex-dark' : 'compilex-light'}
+        theme={currentTheme}
         options={editorOptions}
+        beforeMount={handleBeforeMount}
         onMount={handleEditorMount}
         onChange={onChange}
         loading={
