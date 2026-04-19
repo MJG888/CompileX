@@ -9,16 +9,25 @@ const app = express();
 const server = http.createServer(app);
 
 // Allowed frontend origins
+const rawFrontendUrl = process.env.FRONTEND_URL || '';
+const cleanFrontendUrl = rawFrontendUrl.replace(/\/$/, ''); // Remove trailing slash if present
+
 const ALLOWED_ORIGINS = [
-    process.env.FRONTEND_URL,
+    cleanFrontendUrl,
     'http://localhost:5173',
     'http://localhost:5174',
     'http://localhost:3000',
+    'http://localhost:3001',
 ].filter(Boolean);
+
+// If FRONTEND_URL is '*' or we have no origins, allow all
+const corsOrigin = (cleanFrontendUrl === '*' || ALLOWED_ORIGINS.length === 0) 
+    ? true 
+    : ALLOWED_ORIGINS;
 
 const io = new Server(server, {
     cors: {
-        origin: ALLOWED_ORIGINS.length > 0 ? ALLOWED_ORIGINS : '*',
+        origin: corsOrigin,
         methods: ['GET', 'POST'],
     },
     pingTimeout: 60000,
@@ -28,7 +37,7 @@ const io = new Server(server, {
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-    origin: ALLOWED_ORIGINS.length > 0 ? ALLOWED_ORIGINS : '*',
+    origin: corsOrigin,
 }));
 app.use(express.json({ limit: '5mb' }));
 
