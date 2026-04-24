@@ -261,7 +261,7 @@ export default function App() {
     try {
       if (navigator.share && isMobile) {
         await navigator.share({
-          title: `CompileX ${activeFileName}`,
+          title: `CompileX Code Snippet`,
           text: code,
         });
       } else {
