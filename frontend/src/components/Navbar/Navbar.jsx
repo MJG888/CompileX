@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { LANGUAGES } from '../../constants/languages';
 import './Navbar.css';
 
@@ -46,6 +46,7 @@ export default function Navbar({
   version,
   backendConnected,
 }) {
+  const [showLangMenu, setShowLangMenu] = useState(false);
   const lang = LANGUAGES.find((l) => l.id === selectedLanguage) || LANGUAGES[0];
 
   return (
@@ -72,24 +73,16 @@ export default function Navbar({
 
       {/* Center: Language Selector */}
       <div className="navbar-center">
-        <div className="language-selector-wrapper">
+        <button
+          className="language-selector-wrapper"
+          onClick={() => setShowLangMenu(true)}
+        >
           <span className="language-icon">{lang.icon}</span>
-          <select
-            id="language-select"
-            className="language-selector"
-            value={selectedLanguage}
-            onChange={(e) => onLanguageChange(e.target.value)}
-          >
-            {LANGUAGES.map((l) => (
-              <option key={l.id} value={l.id}>
-                {l.label}
-              </option>
-            ))}
-          </select>
+          <span className="language-selector-text">{lang.label}</span>
           <svg className="select-chevron" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
             <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" fill="none" />
           </svg>
-        </div>
+        </button>
       </div>
 
       {/* Right: Actions */}
@@ -149,6 +142,38 @@ export default function Navbar({
           )}
         </button>
       </div>
+
+      {/* Language Bottom Sheet / Dropdown */}
+      {showLangMenu && (
+        <div className="lang-menu-overlay" onClick={() => setShowLangMenu(false)}>
+          <div className="lang-menu-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="lang-menu-header">
+              <h3>Select Language</h3>
+              <button className="lang-menu-close" onClick={() => setShowLangMenu(false)}>✕</button>
+            </div>
+            <div className="lang-menu-list">
+              {LANGUAGES.map((l) => (
+                <button
+                  key={l.id}
+                  className={`lang-menu-item ${selectedLanguage === l.id ? 'active' : ''}`}
+                  onClick={() => {
+                    onLanguageChange(l.id);
+                    setShowLangMenu(false);
+                  }}
+                >
+                  <span className="lang-icon">{l.icon}</span>
+                  <span className="lang-label">{l.label}</span>
+                  {selectedLanguage === l.id && (
+                    <svg className="lang-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

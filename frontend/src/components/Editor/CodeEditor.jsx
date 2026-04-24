@@ -121,7 +121,7 @@ export default function CodeEditor({ value, language, theme, onChange }) {
     trimAutoWhitespace: false,  // Don't strip whitespace on paste
 
     // ─── Scroll config ───
-    wordWrap: isMobile ? 'on' : 'off', // Wrap on mobile, scroll on desktop
+    wordWrap: 'on',
     mouseWheelZoom: true,
     smoothScrolling: true,
     scrollbar: {
@@ -134,7 +134,7 @@ export default function CodeEditor({ value, language, theme, onChange }) {
     },
 
     // ─── Visual refinements ───
-    renderLineHighlight: 'all',
+    renderLineHighlight: 'none',
     cursorStyle: 'line',
     cursorBlinking: 'smooth',
     cursorSmoothCaretAnimation: 'on',
@@ -143,9 +143,12 @@ export default function CodeEditor({ value, language, theme, onChange }) {
     roundedSelection: true,
     bracketPairColorization: { enabled: true },
     guides: {
-      bracketPairs: true,
-      indentation: true,
+      bracketPairs: false,
+      indentation: false,
     },
+    overviewRulerLanes: 0,
+    hideCursorInOverviewRuler: true,
+    overviewRulerBorder: false,
     padding: { top: 16, bottom: 16 },
     lineNumbers: 'on',
     lineNumbersMinChars: 3,
@@ -161,9 +164,6 @@ export default function CodeEditor({ value, language, theme, onChange }) {
       lineDecorationsWidth: 8,
       folding: false,                // Save space on mobile
       lineNumbersMinChars: 2,
-      overviewRulerLanes: 0,
-      hideCursorInOverviewRuler: true,
-      overviewRulerBorder: false,
     } : {}),
 
     // ─── Autocomplete ───

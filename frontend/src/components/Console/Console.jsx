@@ -35,6 +35,7 @@ export default function Console({
   onStdinChange,
   onSendInput,
   onStop,
+  mobileForcedTab,
 }) {
   const [activeTab, setActiveTab] = useState('output');
   const [inputValue, setInputValue] = useState('');
@@ -67,7 +68,8 @@ export default function Console({
     <div className="console">
       {/* Header */}
       <div className="console-header">
-        <div className="console-tabs">
+        {!mobileForcedTab && (
+          <div className="console-tabs">
           <button
             id="tab-output"
             className={`console-tab ${activeTab === 'output' ? 'active' : ''}`}
@@ -104,6 +106,7 @@ export default function Console({
             {hasError && <span className="tab-dot error" />}
           </button>
         </div>
+        )}
 
         {/* Status Badge */}
         <div className="console-status" style={{ color: statusConfig.color, background: statusConfig.bg }}>
@@ -126,7 +129,7 @@ export default function Console({
       {/* Body */}
       <div className="console-body">
         {/* Terminal Tab */}
-        {activeTab === 'output' && (
+        {(mobileForcedTab === 'output' || (!mobileForcedTab && activeTab === 'output')) && (
           <div className="console-content terminal-mode" ref={scrollRef}>
             {hasOutput || isInteractive ? (
               <div className="console-output success-output">
@@ -174,7 +177,7 @@ export default function Console({
         )}
 
         {/* Input Tab */}
-        {activeTab === 'input' && (
+        {(mobileForcedTab === 'input' || (!mobileForcedTab && activeTab === 'input')) && (
           <div className="console-content">
             <textarea
               className="stdin-textarea"
@@ -187,7 +190,7 @@ export default function Console({
         )}
 
         {/* Errors Tab */}
-        {activeTab === 'errors' && (
+        {(mobileForcedTab === 'errors' || (!mobileForcedTab && activeTab === 'errors')) && (
           <div className="console-content">
             {hasError ? (
               <pre className="console-output error-output">{errorText}</pre>

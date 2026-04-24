@@ -71,7 +71,7 @@ export default function App() {
   const [backendConnected, setBackendConnected] = useState(false);
   const [verticalSplit, setVerticalSplit] = useState(65);
   const [horizontalSplit, setHorizontalSplit] = useState(28);
-  const [mobileTab, setMobileTab] = useState('editor'); // 'editor' | 'terminal' | 'ai'
+  const [mobileTab, setMobileTab] = useState('output'); // 'output' | 'input' | 'ai'
   const isDraggingVertical = useRef(false);
   const isDraggingHorizontal = useRef(false);
   const bodyRef = useRef(null);
@@ -220,8 +220,8 @@ export default function App() {
     setResult(null);
     setTerminalData([]);
 
-    // Switch to terminal tab on mobile
-    if (isMobile) setMobileTab('terminal');
+    // Switch to output tab on mobile
+    if (isMobile) setMobileTab('output');
 
     const encode = (str) => btoa(unescape(encodeURIComponent(str)));
     const encodedFiles = activeLangFiles.map(f => ({
@@ -367,7 +367,7 @@ export default function App() {
           onThemeToggle={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
           onAIToggle={() => {
             setAIPanelOpen(o => !o);
-            setMobileTab(aiPanelOpen ? 'editor' : 'ai');
+            setMobileTab(aiPanelOpen ? 'output' : 'ai');
           }}
           aiPanelOpen={aiPanelOpen || mobileTab === 'ai'}
           version={APP_VERSION}
@@ -376,8 +376,8 @@ export default function App() {
 
         {/* Mobile Content Area */}
         <div className="mobile-content">
-          {/* Editor View */}
-          <div className={`mobile-panel ${mobileTab === 'editor' ? 'active' : ''}`}>
+          {/* Top 60%: Editor always visible */}
+          <div className="mobile-editor-section">
             <div className="file-tabs">
               {activeLangFiles.map(f => (
                 <button
@@ -425,67 +425,79 @@ export default function App() {
             </div>
           </div>
 
-          {/* Terminal View */}
-          <div className={`mobile-panel ${mobileTab === 'terminal' ? 'active' : ''}`}>
-            <Console
-              terminalData={terminalData}
-              result={result}
-              isRunning={isRunning}
-              isCompiling={isCompiling}
-              isInteractive={isInteractive}
-              stdin={stdin}
-              onStdinChange={setStdin}
-              onSendInput={handleTerminalInput}
-              onStop={handleStop}
-            />
-          </div>
+          {/* Bottom 40%: Output / Input / AI */}
+          <div className="mobile-bottom-section">
+            <div className="mobile-tab-bar">
+              <button
+                className={`mobile-tab-btn ${mobileTab === 'output' ? 'active' : ''}`}
+                onClick={() => setMobileTab('output')}
+              >
+                <span>Output</span>
+                {isRunning && <span className="mobile-tab-dot running" />}
+              </button>
+              <button
+                className={`mobile-tab-btn ${mobileTab === 'input' ? 'active' : ''}`}
+                onClick={() => setMobileTab('input')}
+              >
+                <span>Input</span>
+              </button>
+              <button
+                className={`mobile-tab-btn ${mobileTab === 'ai' ? 'active' : ''}`}
+                onClick={() => { setMobileTab('ai'); setAIPanelOpen(true); }}
+              >
+                <span>AI</span>
+              </button>
+            </div>
 
-          {/* AI View */}
-          <div className={`mobile-panel ${mobileTab === 'ai' ? 'active' : ''}`}>
-            <Suspense fallback={<div className="ai-loading">Loading AI…</div>}>
-              <AIPanel
-                isOpen={mobileTab === 'ai'}
-                code={code}
-                files={activeLangFiles}
-                language={selectedLanguage}
-                execError={execError}
-                onInsertCode={handleInsertCode}
-                onClose={() => { setAIPanelOpen(false); setMobileTab('editor'); }}
-              />
-            </Suspense>
-          </div>
-        </div>
+            <div className="mobile-bottom-content">
+              {/* Output Tab */}
+              <div className={`mobile-panel ${mobileTab === 'output' ? 'active' : ''}`}>
+                <Console
+                  terminalData={terminalData}
+                  result={result}
+                  isRunning={isRunning}
+                  isCompiling={isCompiling}
+                  isInteractive={isInteractive}
+                  stdin={stdin}
+                  onStdinChange={setStdin}
+                  onSendInput={handleTerminalInput}
+                  onStop={handleStop}
+                  mobileForcedTab="output"
+                />
+              </div>
 
-        {/* Mobile Tab Bar */}
-        <div className="mobile-tab-bar">
-          <button
-            className={`mobile-tab-btn ${mobileTab === 'editor' ? 'active' : ''}`}
-            onClick={() => setMobileTab('editor')}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" />
-            </svg>
-            <span>Editor</span>
-          </button>
-          <button
-            className={`mobile-tab-btn ${mobileTab === 'terminal' ? 'active' : ''}`}
-            onClick={() => setMobileTab('terminal')}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="4 17 10 11 4 5" /><line x1="12" y1="19" x2="20" y2="19" />
-            </svg>
-            <span>Terminal</span>
-            {isRunning && <span className="mobile-tab-dot running" />}
-          </button>
-          <button
-            className={`mobile-tab-btn ${mobileTab === 'ai' ? 'active' : ''}`}
-            onClick={() => { setMobileTab('ai'); setAIPanelOpen(true); }}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-            </svg>
-            <span>AI</span>
-          </button>
+              {/* Input Tab */}
+              <div className={`mobile-panel ${mobileTab === 'input' ? 'active' : ''}`}>
+                <Console
+                  terminalData={terminalData}
+                  result={result}
+                  isRunning={isRunning}
+                  isCompiling={isCompiling}
+                  isInteractive={isInteractive}
+                  stdin={stdin}
+                  onStdinChange={setStdin}
+                  onSendInput={handleTerminalInput}
+                  onStop={handleStop}
+                  mobileForcedTab="input"
+                />
+              </div>
+
+              {/* AI Tab */}
+              <div className={`mobile-panel ${mobileTab === 'ai' ? 'active' : ''}`}>
+                <Suspense fallback={<div className="ai-loading">Loading AI…</div>}>
+                  <AIPanel
+                    isOpen={mobileTab === 'ai'}
+                    code={code}
+                    files={activeLangFiles}
+                    language={selectedLanguage}
+                    execError={execError}
+                    onInsertCode={handleInsertCode}
+                    onClose={() => { setAIPanelOpen(false); setMobileTab('output'); }}
+                  />
+                </Suspense>
+              </div>
+            </div>
+          </div>
         </div>
 
         <StatusBar selectedLanguage={selectedLanguage} linesCount={lineCount} charCount={code.length} connected={backendConnected} />
