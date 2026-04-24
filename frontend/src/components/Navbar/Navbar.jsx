@@ -41,6 +41,7 @@ export default function Navbar({
   isRunning,
   theme,
   onThemeToggle,
+  onShare,
   onAIToggle,
   aiPanelOpen,
   version,
@@ -117,7 +118,7 @@ export default function Navbar({
         </button>
 
         {/* Share */}
-        <button id="share-btn" className="btn-icon" title="Share code">
+        <button id="share-btn" className="btn-icon" title="Share code" onClick={onShare}>
           <ShareIcon />
         </button>
 

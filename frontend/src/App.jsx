@@ -256,6 +256,23 @@ export default function App() {
     }
   }, [setCode]);
 
+  // ─── Share Code ───
+  const handleShare = async () => {
+    try {
+      if (navigator.share && isMobile) {
+        await navigator.share({
+          title: `CompileX ${activeFileName}`,
+          text: code,
+        });
+      } else {
+        await navigator.clipboard.writeText(code);
+        alert('Code copied to clipboard!');
+      }
+    } catch (err) {
+      console.error('Error sharing code:', err);
+    }
+  };
+
   // ─── Keyboard Shortcuts ───
   const handleKeyDown = useCallback(
     (e) => {
@@ -365,6 +382,7 @@ export default function App() {
           isRunning={isRunning}
           theme={theme}
           onThemeToggle={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
+          onShare={handleShare}
           onAIToggle={() => {
             setAIPanelOpen(o => !o);
             setMobileTab(aiPanelOpen ? 'output' : 'ai');
@@ -515,6 +533,7 @@ export default function App() {
         isRunning={isRunning}
         theme={theme}
         onThemeToggle={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
+        onShare={handleShare}
         onAIToggle={() => setAIPanelOpen(o => !o)}
         aiPanelOpen={aiPanelOpen}
         version={APP_VERSION}
