@@ -113,24 +113,31 @@ export default function CodeEditor({ value, language, theme, onChange }) {
     automaticLayout: true,
     fixedOverflowWidgets: true,
     fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
-    fontLigatures: true,
+    fontLigatures: !isMobile,   // Ligatures can cause width calc issues on mobile
 
     // ─── CRITICAL: Paste fix ───
     formatOnPaste: false,       // Do NOT re-format pasted code
     autoIndent: 'keep',         // Preserve original indentation
     trimAutoWhitespace: false,  // Don't strip whitespace on paste
 
+    // ─── Word Wrap & Indentation ───
+    // Mobile: OFF — horizontal scroll is cleaner than staircase wrapping
+    // Desktop: ON — nicer UX on wide screens
+    wordWrap: isMobile ? 'off' : 'on',
+    wrappingIndent: 'none',        // Wrapped lines start at column 0 (no staircase)
+    wrappingStrategy: 'advanced',  // Smarter wrap-point decisions
+
     // ─── Scroll config ───
-    wordWrap: 'on',
-    mouseWheelZoom: true,
+    mouseWheelZoom: !isMobile,
     smoothScrolling: true,
     scrollbar: {
       vertical: 'visible',
-      horizontal: isMobile ? 'hidden' : 'visible',
+      horizontal: 'visible',       // Always show horizontal scroll for long lines
       useShadows: false,
-      verticalScrollbarSize: isMobile ? 6 : 10,
-      horizontalScrollbarSize: 10,
-      verticalSliderSize: isMobile ? 6 : 10,
+      verticalScrollbarSize: isMobile ? 4 : 10,
+      horizontalScrollbarSize: isMobile ? 4 : 10,
+      verticalSliderSize: isMobile ? 4 : 10,
+      horizontalSliderSize: isMobile ? 4 : 10,
     },
 
     // ─── Visual refinements ───
@@ -149,11 +156,11 @@ export default function CodeEditor({ value, language, theme, onChange }) {
     overviewRulerLanes: 0,
     hideCursorInOverviewRuler: true,
     overviewRulerBorder: false,
-    padding: { top: 16, bottom: 16 },
+    padding: { top: 12, bottom: 12 },
     lineNumbers: 'on',
-    lineNumbersMinChars: 3,
+    lineNumbersMinChars: isMobile ? 2 : 3,
     glyphMargin: false,
-    folding: true,
+    folding: !isMobile,
     showFoldingControls: 'mouseover',
     links: true,
     colorDecorators: true,
@@ -161,9 +168,10 @@ export default function CodeEditor({ value, language, theme, onChange }) {
 
     // ─── Mobile-specific ───
     ...(isMobile ? {
-      lineDecorationsWidth: 8,
-      folding: false,                // Save space on mobile
-      lineNumbersMinChars: 2,
+      lineDecorationsWidth: 4,       // Minimal gutter
+      renderWhitespace: 'none',     // Cleaner on small screens
+      tabSize: 4,                   // Consistent tab width
+      detectIndentation: false,     // Force consistent tabs on paste
     } : {}),
 
     // ─── Autocomplete ───
@@ -172,7 +180,7 @@ export default function CodeEditor({ value, language, theme, onChange }) {
       comments: false,
       strings: true,
     },
-    parameterHints: { enabled: true },
+    parameterHints: { enabled: !isMobile },  // Skip param hints on mobile (too intrusive)
     suggestOnTriggerCharacters: true,
     acceptSuggestionOnEnter: 'on',
     tabCompletion: 'on',

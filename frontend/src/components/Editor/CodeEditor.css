@@ -11,6 +11,17 @@
   touch-action: pan-x pan-y; /* Allow scroll gestures to pass through */
 }
 
+/* Prevent Monaco view lines from overflowing their container */
+.code-editor-wrapper .monaco-editor .view-lines {
+  white-space: pre !important;  /* Force consistent whitespace handling */
+}
+
+/* Ensure the editor scrollable area has proper dimensions */
+.code-editor-wrapper .monaco-editor .overflow-guard {
+  width: 100% !important;
+  height: 100% !important;
+}
+
 .editor-loading {
   height: 100%;
   display: flex;
@@ -36,10 +47,14 @@
   to { transform: rotate(360deg); }
 }
 
-/* Mobile touch improvements */
+/* Mobile touch & scroll improvements */
 @media (max-width: 768px) {
   .code-editor-wrapper {
-    touch-action: auto;
-    -webkit-overflow-scrolling: touch;
+    touch-action: manipulation;  /* Allow pinch-zoom and pan */
+  }
+
+  /* Slimmer scrollbars on mobile */
+  .code-editor-wrapper .monaco-editor .scrollbar {
+    opacity: 0.6;
   }
 }
