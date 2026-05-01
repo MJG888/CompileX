@@ -4,6 +4,7 @@ import CodeEditor from './components/Editor/CodeEditor';
 import Console from './components/Console/Console';
 import StatusBar from './components/StatusBar/StatusBar';
 import { LANGUAGES, getLanguageById } from './constants/languages';
+import { useTheme } from './themes/ThemeContext';
 import { io } from 'socket.io-client';
 import './App.css';
 
@@ -56,7 +57,7 @@ const initialFiles = LANGUAGES.reduce((acc, lang) => {
 }, {});
 
 export default function App() {
-  const [theme, setTheme] = useState('dark');
+  const { theme, themeName, setThemeName } = useTheme();
   const [selectedLanguage, setSelectedLanguage] = useState('python');
 
   const [filesByLang, setFilesByLang] = useState(initialFiles);
@@ -374,14 +375,12 @@ export default function App() {
   // ─── Mobile Tab-based Layout ───
   if (isMobile) {
     return (
-      <div className={`app ${theme}`} onKeyDown={handleKeyDown} tabIndex={-1}>
+      <div className="app" data-theme={themeName} onKeyDown={handleKeyDown} tabIndex={-1}>
         <Navbar
           selectedLanguage={selectedLanguage}
           onLanguageChange={handleLanguageChange}
           onRun={handleRun}
           isRunning={isRunning}
-          theme={theme}
-          onThemeToggle={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
           onShare={handleShare}
           onAIToggle={() => {
             setAIPanelOpen(o => !o);
@@ -437,7 +436,7 @@ export default function App() {
               <CodeEditor
                 value={code}
                 language={getLanguageById(selectedLanguage).monacoId}
-                theme={theme}
+                themeName={themeName}
                 onChange={(val) => setCode(val || '')}
               />
             </div>
@@ -525,14 +524,12 @@ export default function App() {
 
   // ─── Desktop Layout ───
   return (
-    <div className={`app ${theme}`} onKeyDown={handleKeyDown} tabIndex={-1}>
+    <div className="app" data-theme={themeName} onKeyDown={handleKeyDown} tabIndex={-1}>
       <Navbar
         selectedLanguage={selectedLanguage}
         onLanguageChange={handleLanguageChange}
         onRun={handleRun}
         isRunning={isRunning}
-        theme={theme}
-        onThemeToggle={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
         onShare={handleShare}
         onAIToggle={() => setAIPanelOpen(o => !o)}
         aiPanelOpen={aiPanelOpen}
@@ -586,7 +583,7 @@ export default function App() {
               <CodeEditor
                 value={code}
                 language={getLanguageById(selectedLanguage).monacoId}
-                theme={theme}
+                themeName={themeName}
                 onChange={(val) => setCode(val || '')}
               />
             </div>

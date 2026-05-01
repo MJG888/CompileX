@@ -4,7 +4,7 @@
   width: 100%;
   height: 100%;
   max-height: 100%;
-  background: var(--surface-1);
+  background: var(--surface);
   border-left: 1px solid var(--border);
   overflow: hidden; /* CRITICAL: panel itself never scrolls — only .ai-messages scrolls */
   animation: aiSlideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -44,7 +44,7 @@
   justify-content: center;
   color: white;
   flex-shrink: 0;
-  box-shadow: 0 0 10px rgba(124, 58, 237, 0.3);
+  box-shadow: 0 0 10px var(--accent-dim);
 }
 
 .ai-panel-name {
@@ -115,12 +115,12 @@
 .quick-action-btn:hover {
   border-color: var(--accent);
   color: var(--accent-light);
-  background: rgba(124, 58, 237, 0.08);
+  background: var(--accent-dim);
 }
 
 .quick-action-btn.active {
   border-color: var(--accent);
-  background: rgba(124, 58, 237, 0.12);
+  background: var(--accent-dim);
   color: var(--accent-light);
 }
 
@@ -156,7 +156,7 @@
   width: 22px;
   height: 22px;
   border-radius: 6px;
-  background: linear-gradient(135deg, var(--accent), #a855f7);
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -173,7 +173,7 @@
 }
 
 .ai-message.user .message-bubble {
-  background: linear-gradient(135deg, var(--accent), #a855f7);
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
   border-radius: 12px 4px 12px 12px;
   padding: 0.5rem 0.75rem;
   color: white;
@@ -201,7 +201,7 @@
 
 /* ─── Code Blocks ─── */
 .code-block-wrapper {
-  background: var(--surface-0);
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
@@ -322,7 +322,7 @@
 
 .ai-prompt-input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
+  box-shadow: 0 0 0 2px var(--accent-dim);
 }
 
 .ai-prompt-input::placeholder { color: var(--text-muted); }
@@ -331,7 +331,7 @@
   width: 34px;
   height: 34px;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--accent), #a855f7);
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
   border: none;
   color: white;
   display: flex;
@@ -340,10 +340,10 @@
   cursor: pointer;
   flex-shrink: 0;
   transition: all 0.15s;
-  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25);
+  box-shadow: 0 2px 8px var(--accent-dim);
 }
 
-.ai-submit-btn:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35); }
+.ai-submit-btn:hover { transform: scale(1.05); box-shadow: 0 4px 12px var(--accent-dim); }
 .ai-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
 /* ─── Convert Selector ─── */
@@ -374,11 +374,11 @@
   cursor: pointer;
 }
 
-.convert-select option { background: var(--surface-1); }
+.convert-select option { background: var(--surface); }
 
 .convert-go-btn {
   padding: 0.2rem 0.625rem;
-  background: linear-gradient(135deg, var(--accent), #a855f7);
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
   border: none;
   border-radius: 6px;
   color: white;

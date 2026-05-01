@@ -1,23 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { LANGUAGES } from '../../constants/languages';
+import { useTheme } from '../../themes/ThemeContext';
+import { getThemeList } from '../../themes/themes';
 import './Navbar.css';
 
 const RunIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
     <path d="M8 5v14l11-7z" />
-  </svg>
-);
-
-const MoonIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-  </svg>
-);
-
-const SunIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-    <circle cx="12" cy="12" r="5" />
-    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" strokeWidth="2" fill="none" />
   </svg>
 );
 
@@ -34,13 +23,21 @@ const AIIcon = () => (
   </svg>
 );
 
+const PaletteIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="8" r="1.5" fill="currentColor" stroke="none" />
+    <circle cx="8" cy="12" r="1.5" fill="currentColor" stroke="none" />
+    <circle cx="15.5" cy="10.5" r="1.5" fill="currentColor" stroke="none" />
+    <circle cx="10" cy="15.5" r="1.5" fill="currentColor" stroke="none" />
+  </svg>
+);
+
 export default function Navbar({
   selectedLanguage,
   onLanguageChange,
   onRun,
   isRunning,
-  theme,
-  onThemeToggle,
   onShare,
   onAIToggle,
   aiPanelOpen,
@@ -48,7 +45,27 @@ export default function Navbar({
   backendConnected,
 }) {
   const [showLangMenu, setShowLangMenu] = useState(false);
+  const [showThemeMenu, setShowThemeMenu] = useState(false);
+  const { themeName, setThemeName } = useTheme();
+  const themeMenuRef = useRef(null);
   const lang = LANGUAGES.find((l) => l.id === selectedLanguage) || LANGUAGES[0];
+  const themeList = getThemeList();
+
+  // Close theme menu on outside click
+  useEffect(() => {
+    if (!showThemeMenu) return;
+    const handler = (e) => {
+      if (themeMenuRef.current && !themeMenuRef.current.contains(e.target)) {
+        setShowThemeMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    document.addEventListener('touchstart', handler);
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      document.removeEventListener('touchstart', handler);
+    };
+  }, [showThemeMenu]);
 
   return (
     <nav className="navbar">
@@ -59,8 +76,8 @@ export default function Navbar({
             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="url(#bolt)" />
             <defs>
               <linearGradient id="bolt" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#7c3aed" />
-                <stop offset="100%" stopColor="#06d6a0" />
+                <stop offset="0%" stopColor="var(--primary)" />
+                <stop offset="100%" stopColor="var(--teal)" />
               </linearGradient>
             </defs>
           </svg>
@@ -107,15 +124,45 @@ export default function Navbar({
           <span>AI</span>
         </button>
 
-        {/* Theme Toggle */}
-        <button
-          id="theme-toggle"
-          className="btn-icon"
-          onClick={onThemeToggle}
-          title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-        >
-          {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-        </button>
+        {/* Theme Switcher */}
+        <div className="theme-switcher-wrapper" ref={themeMenuRef}>
+          <button
+            id="theme-toggle"
+            className={`btn-icon btn-theme ${showThemeMenu ? 'active' : ''}`}
+            onClick={() => setShowThemeMenu(o => !o)}
+            title="Change theme"
+          >
+            <PaletteIcon />
+          </button>
+          {showThemeMenu && (
+            <div className="theme-dropdown">
+              <div className="theme-dropdown-header">Theme</div>
+              {themeList.map((t) => (
+                <button
+                  key={t.id}
+                  className={`theme-option ${themeName === t.id ? 'active' : ''}`}
+                  onClick={() => {
+                    setThemeName(t.id);
+                    setShowThemeMenu(false);
+                  }}
+                >
+                  <span className="theme-option-preview" style={{
+                    background: t.vars['--bg'],
+                    borderColor: t.vars['--primary'],
+                  }}>
+                    <span className="theme-option-accent" style={{ background: t.vars['--primary'] }} />
+                  </span>
+                  <span className="theme-option-label">{t.label}</span>
+                  {themeName === t.id && (
+                    <svg className="theme-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Share */}
         <button id="share-btn" className="btn-icon" title="Share code" onClick={onShare}>

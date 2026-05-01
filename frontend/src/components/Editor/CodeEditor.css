@@ -13,7 +13,7 @@
 
 /* Prevent Monaco view lines from overflowing their container */
 .code-editor-wrapper .monaco-editor .view-lines {
-  white-space: pre !important;  /* Force consistent whitespace handling */
+  white-space: pre !important;  /* Force consistent whitespace handling — prevents paste collapse */
 }
 
 /* Ensure the editor scrollable area has proper dimensions */
@@ -31,7 +31,7 @@
   gap: 1rem;
   color: var(--text-muted);
   font-size: 0.875rem;
-  background: var(--surface-0);
+  background: var(--bg);
 }
 
 .editor-loading-spinner {
@@ -51,10 +51,23 @@
 @media (max-width: 768px) {
   .code-editor-wrapper {
     touch-action: manipulation;  /* Allow pinch-zoom and pan */
+    -webkit-overflow-scrolling: touch; /* Smooth momentum scrolling on iOS */
   }
 
   /* Slimmer scrollbars on mobile */
   .code-editor-wrapper .monaco-editor .scrollbar {
     opacity: 0.6;
+  }
+
+  /* Ensure editor input area allows touch interactions properly */
+  .code-editor-wrapper .monaco-editor .inputarea {
+    touch-action: manipulation;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  /* Prevent iOS from zooming into input fields */
+  .code-editor-wrapper .monaco-editor textarea {
+    font-size: 16px !important; /* iOS won't zoom if font >= 16px */
   }
 }

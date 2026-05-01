@@ -1,54 +1,22 @@
 /* ═══════════════════════════════════════════
-   CompileX – Global Design System v2.0
-   Professional dark glassmorphism IDE
+   CompileX – Global Design System v3.0
+   Scalable CSS-variable-based theme system
+   Variables are injected by ThemeContext.jsx
 ═══════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-/* ─── CSS Variables: Dark Theme ─── */
-:root,
-.dark {
-  --accent: #7c3aed;
-  --accent-light: #a78bfa;
-  --accent-dim: rgba(124, 58, 237, 0.15);
-  --teal: #06d6a0;
-  --teal-dim: rgba(6, 214, 160, 0.15);
+/* ─── CSS Variable Aliases ───
+   ThemeContext injects: --primary, --bg, --surface, --surface-2, --surface-3,
+   --surface-glass, --glass-blur, --text-primary, --text-secondary, --text-muted,
+   --accent, --accent-light, --accent-dim, --teal, --teal-dim,
+   --border, --border-hover, --status-bar-bg, --run-btn-bg, etc.
 
-  --surface-0: #09090b;
-  --surface-1: #0c0c10;
-  --surface-2: #121218;
-  --surface-3: #1a1a24;
-  --surface-glass: rgba(9, 9, 11, 0.85);
-
-  --border: rgba(255, 255, 255, 0.07);
-  --border-hover: rgba(124, 58, 237, 0.3);
-  --glass-blur: blur(14px);
-
-  --text-primary: #e2e8f0;
-  --text-secondary: #94a3b8;
-  --text-muted: #4b5568;
-}
-
-/* ─── CSS Variables: Light Theme ─── */
-.light {
-  --accent: #7c3aed;
-  --accent-light: #6d28d9;
-  --accent-dim: rgba(124, 58, 237, 0.08);
-  --teal: #059669;
-  --teal-dim: rgba(5, 150, 105, 0.1);
-
-  --surface-0: #ffffff;
-  --surface-1: #f8fafc;
-  --surface-2: #f1f5f9;
-  --surface-3: #e2e8f0;
-  --surface-glass: rgba(248, 250, 252, 0.92);
-
-  --border: rgba(0, 0, 0, 0.07);
-  --border-hover: rgba(0, 0, 0, 0.15);
-
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
+   For backwards compat, we alias --surface-0 → --bg and --surface-1 → --surface.
+─── */
+:root {
+  --surface-0: var(--bg);
+  --surface-1: var(--surface);
 }
 
 /* ─── Reset & Base ─── */
@@ -79,10 +47,10 @@ body {
   height: 100vh;
   height: 100dvh;
   width: 100vw;
-  background: var(--surface-0);
+  background: var(--bg);
   color: var(--text-primary);
   overflow: hidden;
-  transition: background 0.3s ease, color 0.3s ease;
+  transition: background 0.35s ease, color 0.35s ease;
   outline: none;
   position: relative;
 }
@@ -118,7 +86,7 @@ body {
 /* ─── File Tabs ─── */
 .file-tabs {
   display: flex;
-  background: var(--surface-1);
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
   overflow-x: auto;
   flex-shrink: 0;
@@ -143,14 +111,14 @@ body {
   flex-shrink: 0;
 }
 .file-tab.active {
-  background: var(--surface-0);
+  background: var(--bg);
   color: var(--text-primary);
   border-bottom-color: var(--accent);
 }
 
 .new-file-tab {
   padding: 0 8px;
-  background: var(--surface-0);
+  background: var(--bg);
   border-bottom-color: var(--accent);
   display: flex;
   align-items: center;
@@ -300,7 +268,7 @@ body {
   width: 100%;
   color: var(--text-muted);
   font-size: 0.875rem;
-  background: var(--surface-1);
+  background: var(--surface);
 }
 
 /* ─── Resize Overlay ─── */
@@ -325,28 +293,55 @@ body {
 *::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 3px; }
 *::-webkit-scrollbar-thumb:hover { background: var(--accent-dim); }
 
-/* ─── Background Ambient Gradient (dark only) ─── */
-.dark .app::before {
+/* ─── Background Ambient Gradient (warm-dark only) ─── */
+[data-theme="warm-dark"] .app::before {
   content: '';
   position: fixed;
   top: -200px;
   right: -200px;
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(124, 58, 237, 0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 119, 28, 0.06) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
   animation: ambientFloat 12s ease-in-out infinite;
 }
 
-.dark .app::after {
+[data-theme="warm-dark"] .app::after {
   content: '';
   position: fixed;
   bottom: -150px;
   left: -100px;
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(6, 214, 160, 0.04) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(84, 104, 119, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  animation: ambientFloat 15s ease-in-out infinite reverse;
+}
+
+/* Cool light theme has a subtle indigo ambient */
+[data-theme="cool-light"] .app::before {
+  content: '';
+  position: fixed;
+  top: -200px;
+  right: -200px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(54, 59, 108, 0.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  animation: ambientFloat 12s ease-in-out infinite;
+}
+
+[data-theme="cool-light"] .app::after {
+  content: '';
+  position: fixed;
+  bottom: -150px;
+  left: -100px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(166, 163, 227, 0.04) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
   animation: ambientFloat 15s ease-in-out infinite reverse;
@@ -393,7 +388,7 @@ body {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  background: var(--surface-0);
+  background: var(--bg);
 }
 
 .mobile-bottom-content {
@@ -426,7 +421,7 @@ body {
 /* ─── Mobile Tab Bar ─── */
 .mobile-tab-bar {
   display: none;
-  background: var(--surface-1);
+  background: var(--surface);
   border-top: 1px solid var(--border);
   flex-shrink: 0;
   z-index: 100;
@@ -516,7 +511,7 @@ body {
     width: 88% !important;
     height: 100%;
     z-index: 1000;
-    background: var(--surface-1);
+    background: var(--surface);
     box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
     flex: none !important;
     transform: translateX(100%);

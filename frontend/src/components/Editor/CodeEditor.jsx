@@ -1,77 +1,36 @@
-import React, { useRef, useEffect, useMemo } from 'react';
+import React, { useRef, useEffect, useMemo, useCallback } from 'react';
 import MonacoEditor from '@monaco-editor/react';
+import { THEMES } from '../../themes/themes';
 import './CodeEditor.css';
 
 // Detect mobile once
 const isMobile = typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent);
 
-// Custom dark theme definition
+// ─── Register ALL custom Monaco themes ───
 const defineThemes = (monaco) => {
-  monaco.editor.defineTheme('compilex-dark', {
-    base: 'vs-dark',
-    inherit: true,
-    rules: [
-      { token: 'comment', foreground: '6a7384', fontStyle: 'italic' },
-      { token: 'keyword', foreground: 'c792ea', fontStyle: 'bold' },
-      { token: 'string', foreground: 'c3e88d' },
-      { token: 'number', foreground: 'f78c6c' },
-      { token: 'type', foreground: '82aaff' },
-      { token: 'function', foreground: '82aaff' },
-      { token: 'variable', foreground: 'eeffff' },
-      { token: 'operator', foreground: '89ddff' },
-      { token: 'delimiter', foreground: '89ddff' },
-      { token: 'identifier', foreground: 'eeffff' },
-    ],
-    colors: {
-      'editor.background': '#0a0a0f',
-      'editor.foreground': '#e2e8f0',
-      'editor.lineHighlightBackground': '#12121f',
-      'editor.selectionBackground': '#7c3aed33',
-      'editor.inactiveSelectionBackground': '#7c3aed1a',
-      'editorLineNumber.foreground': '#3d4461',
-      'editorLineNumber.activeForeground': '#7c3aed',
-      'editorCursor.foreground': '#06d6a0',
-      'editorGutter.background': '#0a0a0f',
-      'editorWidget.background': '#1a1a2e',
-      'editorWidget.border': '#2d2d4e',
-      'editorSuggestWidget.background': '#1a1a2e',
-      'editorSuggestWidget.border': '#2d2d4e',
-      'editorSuggestWidget.selectedBackground': '#7c3aed22',
-      'input.background': '#0d0d1a',
-      'focusBorder': '#7c3aed',
-      'scrollbarSlider.background': '#2d2d4e66',
-      'scrollbarSlider.hoverBackground': '#7c3aed44',
-      'scrollbarSlider.activeBackground': '#7c3aed66',
-    },
-  });
-
-  monaco.editor.defineTheme('compilex-light', {
-    base: 'vs',
-    inherit: true,
-    rules: [
-      { token: 'comment', foreground: '6a7384', fontStyle: 'italic' },
-      { token: 'keyword', foreground: '7c3aed', fontStyle: 'bold' },
-      { token: 'string', foreground: '059669' },
-      { token: 'number', foreground: 'e11d48' },
-      { token: 'type', foreground: '6d28d9' },
-      { token: 'function', foreground: '2563eb' },
-    ],
-    colors: {
-      'editor.background': '#f8fafc',
-      'editor.foreground': '#1e293b',
-      'editor.lineHighlightBackground': '#f1f5f9',
-      'editor.selectionBackground': '#7c3aed22',
-      'editorLineNumber.foreground': '#94a3b8',
-      'editorLineNumber.activeForeground': '#7c3aed',
-      'editorCursor.foreground': '#7c3aed',
-      'editorGutter.background': '#f8fafc',
-    },
+  Object.values(THEMES).forEach((themeObj) => {
+    monaco.editor.defineTheme(themeObj.monacoTheme, themeObj.monaco);
   });
 };
 
-export default function CodeEditor({ value, language, theme, onChange }) {
+/**
+ * Normalize line endings: convert \r\n and \r to \n.
+ * Prevents indentation breaking on paste (especially mobile browsers
+ * that send Windows-style line endings).
+ */
+function normalizeLineEndings(text) {
+  return text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+}
+
+export default function CodeEditor({ value, language, themeName, onChange }) {
   const editorRef = useRef(null);
   const monacoRef = useRef(null);
+
+  // Resolve the Monaco theme name from the current UI theme
+  const currentTheme = useMemo(() => {
+    const themeObj = THEMES[themeName];
+    return themeObj ? themeObj.monacoTheme : 'compilex-warm-dark';
+  }, [themeName]);
 
   // Register themes BEFORE mount to avoid flash
   const handleBeforeMount = (monaco) => {
@@ -88,6 +47,37 @@ export default function CodeEditor({ value, language, theme, onChange }) {
       fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace",
     });
 
+    // ─── PASTE FIX: Normalize line endings on paste ───
+    // Intercept clipboard paste before Monaco processes it
+    const editorDomNode = editor.getDomNode();
+    if (editorDomNode) {
+      editorDomNode.addEventListener('paste', (e) => {
+        const clipboardData = e.clipboardData || window.clipboardData;
+        if (!clipboardData) return;
+
+        const text = clipboardData.getData('text/plain');
+        if (!text) return;
+
+        const normalized = normalizeLineEndings(text);
+
+        // Only intercept if normalization actually changed the text
+        if (normalized !== text) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          // Use Monaco's executeEdits to insert the normalized text
+          const selection = editor.getSelection();
+          if (selection) {
+            editor.executeEdits('paste-normalize', [{
+              range: selection,
+              text: normalized,
+              forceMoveMarkers: true,
+            }]);
+          }
+        }
+      }, true); // Capture phase to fire before Monaco's handler
+    }
+
     // Mobile: focus handling for virtual keyboard
     if (isMobile) {
       editor.onDidFocusEditorText(() => {
@@ -100,9 +90,9 @@ export default function CodeEditor({ value, language, theme, onChange }) {
   // Update theme reactively
   useEffect(() => {
     if (monacoRef.current) {
-      monacoRef.current.editor.setTheme(theme === 'dark' ? 'compilex-dark' : 'compilex-light');
+      monacoRef.current.editor.setTheme(currentTheme);
     }
-  }, [theme]);
+  }, [currentTheme]);
 
   // Memoize options to avoid unnecessary re-renders
   const editorOptions = useMemo(() => ({
@@ -115,10 +105,12 @@ export default function CodeEditor({ value, language, theme, onChange }) {
     fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
     fontLigatures: !isMobile,   // Ligatures can cause width calc issues on mobile
 
-    // ─── CRITICAL: Paste fix ───
-    formatOnPaste: false,       // Do NOT re-format pasted code
-    autoIndent: 'keep',         // Preserve original indentation
-    trimAutoWhitespace: false,  // Don't strip whitespace on paste
+    // ─── CRITICAL: Paste fix settings ───
+    formatOnPaste: false,        // Do NOT re-format pasted code
+    autoIndent: 'none',          // Don't auto-indent (prevents paste formatting issues)
+    trimAutoWhitespace: false,   // Don't strip whitespace on paste
+    detectIndentation: false,    // Force consistent indentation (don't guess from pasted code)
+    tabSize: 4,                  // Consistent tab width globally
 
     // ─── Word Wrap & Indentation ───
     // Mobile: OFF — horizontal scroll is cleaner than staircase wrapping
@@ -138,6 +130,7 @@ export default function CodeEditor({ value, language, theme, onChange }) {
       horizontalScrollbarSize: isMobile ? 4 : 10,
       verticalSliderSize: isMobile ? 4 : 10,
       horizontalSliderSize: isMobile ? 4 : 10,
+      alwaysConsumeMouseWheel: false, // Allow scroll to pass through on mobile
     },
 
     // ─── Visual refinements ───
@@ -170,8 +163,6 @@ export default function CodeEditor({ value, language, theme, onChange }) {
     ...(isMobile ? {
       lineDecorationsWidth: 4,       // Minimal gutter
       renderWhitespace: 'none',     // Cleaner on small screens
-      tabSize: 4,                   // Consistent tab width
-      detectIndentation: false,     // Force consistent tabs on paste
     } : {}),
 
     // ─── Autocomplete ───
@@ -185,8 +176,6 @@ export default function CodeEditor({ value, language, theme, onChange }) {
     acceptSuggestionOnEnter: 'on',
     tabCompletion: 'on',
   }), []);
-
-  const currentTheme = theme === 'dark' ? 'compilex-dark' : 'compilex-light';
 
   return (
     <div className="code-editor-wrapper">
