@@ -60,20 +60,22 @@ export default function CodeEditor({ value, language, themeName, onChange }) {
 
         const normalized = normalizeLineEndings(text);
 
-        // Only intercept if normalization actually changed the text
-        if (normalized !== text) {
-          e.preventDefault();
-          e.stopPropagation();
+        // ─── CRITICAL FIX: ALWAYS intercept paste ───
+        // By preventing default, we stop Monaco's built-in paste logic from
+        // trying to "helpfully" auto-indent, which is what causes the "slanting"
+        // effect on already-indented code.
+        e.preventDefault();
+        e.stopPropagation();
 
-          // Use Monaco's executeEdits to insert the normalized text
-          const selection = editor.getSelection();
-          if (selection) {
-            editor.executeEdits('paste-normalize', [{
-              range: selection,
-              text: normalized,
-              forceMoveMarkers: true,
-            }]);
-          }
+        // Use Monaco's executeEdits to insert the text manually.
+        // This bypasses indentation rules and preserves the clipboard's exact formatting.
+        const selection = editor.getSelection();
+        if (selection) {
+          editor.executeEdits('paste-manual', [{
+            range: selection,
+            text: normalized,
+            forceMoveMarkers: true,
+          }]);
         }
       }, true); // Capture phase to fire before Monaco's handler
     }
