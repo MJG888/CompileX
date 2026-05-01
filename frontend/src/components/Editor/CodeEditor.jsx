@@ -1,7 +1,15 @@
 import React, { useRef, useEffect, useMemo, useCallback } from 'react';
-import MonacoEditor from '@monaco-editor/react';
+import MonacoEditor, { loader } from '@monaco-editor/react';
 import { THEMES } from '../../themes/themes';
 import './CodeEditor.css';
+
+// ─── Optimize Monaco Loading ───
+// Use a more reliable CDN and pre-fetch
+loader.config({
+  paths: {
+    vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs'
+  },
+});
 
 // Detect mobile once
 const isMobile = typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent);
