@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect, lazy, Suspense } from 'react';
 import Navbar from './components/Navbar/Navbar';
-// import CodeEditor from './components/Editor/CodeEditor';
-const CodeEditor = lazy(() => import('./components/Editor/CodeEditor'));
+import CodeEditor from './components/Editor/CodeEditor';
+// const CodeEditor = lazy(() => import('./components/Editor/CodeEditor'));
 
 import Console from './components/Console/Console';
 import StatusBar from './components/StatusBar/StatusBar';
@@ -435,14 +435,12 @@ export default function App() {
               </button>
             </div>
             <div className="editor-pane" ref={editorContainerRef}>
-              <Suspense fallback={<div className="editor-loading"><div className="editor-loading-spinner" /><span>Preparing Editor…</span></div>}>
-                <CodeEditor
+              <CodeEditor
                 value={code}
                 language={getLanguageById(selectedLanguage).monacoId}
                 themeName={themeName}
                 onChange={(val) => setCode(val || '')}
               />
-            </Suspense>
             </div>
           </div>
 
@@ -584,14 +582,12 @@ export default function App() {
               </button>
             </div>
             <div className="editor-pane" ref={editorContainerRef}>
-              <Suspense fallback={<div className="editor-loading"><div className="editor-loading-spinner" /><span>Preparing Editor…</span></div>}>
-                <CodeEditor
+              <CodeEditor
                 value={code}
                 language={getLanguageById(selectedLanguage).monacoId}
                 themeName={themeName}
                 onChange={(val) => setCode(val || '')}
               />
-            </Suspense>
             </div>
           </div>
 
