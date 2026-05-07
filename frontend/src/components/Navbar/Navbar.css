@@ -450,17 +450,44 @@
   to { transform: rotate(360deg); }
 }
 
-/* ─── Mobile ─── */
+/* ─── Desktop vs Mobile Visibility ─── */
+.desktop-only-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.mobile-only-actions {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktop-only-actions {
+    display: none;
+  }
+  .mobile-only-actions {
+    display: flex;
+    position: relative;
+  }
+}
+
+/* ─── Mobile Navbar Overhaul ─── */
 @media (max-width: 768px) {
   .navbar {
-    padding: 0 0.5rem;
-    height: 52px;
-    gap: 5px;
+    padding: 0 0.75rem;
+    height: 56px;
+    gap: 8px;
+    justify-content: space-between;
   }
-  .logo-icon { width: 32px; height: 32px; flex-shrink: 0; }
-  .logo-text { display: none; } /* Hide text on mobile to save space */
+
+  .navbar-logo {
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .logo-icon { width: 32px; height: 32px; }
+  .logo-text { display: none; }
   .logo-badge { display: none; }
-  .version-info { display: none; }
   
   .navbar-center {
     flex: 1;
@@ -469,11 +496,13 @@
   }
 
   .language-selector-wrapper { 
-    height: 32px; 
-    padding: 0 0.4rem; 
-    min-width: 80px;
-    max-width: 110px;
+    height: 36px; 
+    padding: 0 0.5rem; 
+    min-width: 0;
+    max-width: 120px;
+    background: var(--surface-3);
   }
+  
   .language-selector-text { 
     font-size: 0.75rem; 
     white-space: nowrap;
@@ -481,29 +510,79 @@
     text-overflow: ellipsis;
   }
 
-  .btn-run { padding: 0 0.75rem; height: 34px; border-radius: 50%; width: 34px; justify-content: center; }
-  .btn-run span { display: none; }
-  .btn-run svg { font-size: 1.1rem; margin: 0; }
-
-  .btn-icon { height: 34px; padding: 0; width: 34px; justify-content: center; }
-  .btn-icon span { display: none; }
-  .btn-icon svg { font-size: 1.1rem; margin: 0; }
-
-  .navbar-actions { gap: 4px; }
-  .connection-badge { display: none; } /* Hide on mobile to save space */
-
-  .auth-btns { gap: 4px; }
-  .btn-login, .btn-signup { padding: 4px 8px; font-size: 0.7rem; }
-  .btn-signup { display: none; } /* Hide signup on mobile navbar, user can use login page */
-
-  /* Theme dropdown positioned correctly on mobile */
-  .theme-dropdown {
-    position: fixed;
-    top: 56px;
-    right: 0.5rem;
-    left: auto;
-    min-width: 180px;
+  .navbar-actions { 
+    gap: 8px;
+    flex-shrink: 0;
   }
+
+  .btn-run { 
+    padding: 0 1rem; 
+    height: 36px; 
+    border-radius: 18px; 
+    font-size: 0.8rem;
+  }
+  
+  .btn-run span { display: inline; } /* Keep Run text if space permits, or hide if it overflows */
+
+  .mobile-menu-toggle {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    padding: 0;
+    justify-content: center;
+    background: var(--surface-3);
+  }
+
+  .mobile-dropdown {
+    position: fixed;
+    top: 64px;
+    right: 0.75rem;
+    left: 0.75rem; /* Full width minus margins for better touch targets */
+    width: auto;
+    min-width: 0;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .mobile-theme-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 4px 8px 8px;
+  }
+
+  .mobile-theme-list .dropdown-item {
+    padding: 8px;
+    border-radius: 8px;
+    background: var(--surface-2);
+    font-size: 0.75rem;
+  }
+
+  .mobile-auth-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .mobile-auth-grid .dropdown-item {
+    justify-content: center;
+    background: var(--surface-3);
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  
+  .user-info.mobile {
+    padding: 1.25rem 1rem;
+    background: var(--surface-2);
+  }
+}
+
+/* Extra Small Screens */
+@media (max-width: 380px) {
+  .btn-run span { display: none; }
+  .btn-run { width: 36px; padding: 0; justify-content: center; border-radius: 50%; }
+  .language-selector-wrapper { max-width: 90px; }
 }
 
 /* ─── Bottom Sheet Language Menu ─── */

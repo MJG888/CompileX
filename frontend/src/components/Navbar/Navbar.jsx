@@ -4,7 +4,7 @@ import { LANGUAGES } from '../../constants/languages';
 import { useTheme } from '../../themes/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { getThemeList } from '../../themes/themes';
-import { HiOutlineUserCircle, HiOutlineLogout, HiOutlineClock, HiOutlineChevronDown } from 'react-icons/hi';
+import { HiOutlineUserCircle, HiOutlineLogout, HiOutlineClock, HiOutlineChevronDown, HiOutlineDotsVertical, HiOutlineShare, HiOutlineSparkles } from 'react-icons/hi';
 import './Navbar.css';
 
 const RunIcon = () => (
@@ -50,6 +50,7 @@ export default function Navbar({
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   
   const { themeName, setThemeName } = useTheme();
   const { user, logout } = useAuth();
@@ -57,6 +58,7 @@ export default function Navbar({
   
   const themeMenuRef = useRef(null);
   const userMenuRef = useRef(null);
+  const mobileMenuRef = useRef(null);
   
   const lang = LANGUAGES.find((l) => l.id === selectedLanguage) || LANGUAGES[0];
   const themeList = getThemeList();
@@ -69,6 +71,9 @@ export default function Navbar({
       }
       if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
         setShowUserMenu(false);
+      }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(e.target)) {
+        setShowMobileMenu(false);
       }
     };
     document.addEventListener('mousedown', handler);
@@ -114,7 +119,7 @@ export default function Navbar({
 
       {/* Right: Actions */}
       <div className="navbar-actions">
-        {/* Connection indicator */}
+        {/* Connection indicator - Hidden on very small screens */}
         {backendConnected === false && (
           <span className="connection-badge offline" title="Backend not connected">
             <span className="connection-dot" />
@@ -122,106 +127,186 @@ export default function Navbar({
           </span>
         )}
 
-        {/* Editor Actions (Only on editor page) */}
-        {isEditorPage && (
-          <>
+        {/* Desktop Actions (Hidden on Mobile) */}
+        <div className="desktop-only-actions">
+          {isEditorPage && (
+            <>
+              <button
+                id="ai-panel-toggle"
+                className={`btn-icon btn-ai ${aiPanelOpen ? 'active' : ''}`}
+                onClick={onAIToggle}
+                title="Toggle AI Assistant"
+              >
+                <AIIcon />
+                <span>AI</span>
+              </button>
+
+              <button id="share-btn" className="btn-icon" title="Share code" onClick={onShare}>
+                <ShareIcon />
+              </button>
+            </>
+          )}
+
+          <div className="navbar-divider" />
+
+          {/* Theme Switcher */}
+          <div className="theme-switcher-wrapper" ref={themeMenuRef}>
             <button
-              id="ai-panel-toggle"
-              className={`btn-icon btn-ai ${aiPanelOpen ? 'active' : ''}`}
-              onClick={onAIToggle}
-              title="Toggle AI Assistant"
+              className={`btn-icon ${showThemeMenu ? 'active' : ''}`}
+              onClick={() => setShowThemeMenu(o => !o)}
+              title="Change theme"
             >
-              <AIIcon />
-              <span>AI</span>
+              <PaletteIcon />
             </button>
+            {showThemeMenu && (
+              <div className="dropdown-menu theme-dropdown">
+                <div className="dropdown-header">Theme</div>
+                {themeList.map((t) => (
+                  <button
+                    key={t.id}
+                    className={`dropdown-item ${themeName === t.id ? 'active' : ''}`}
+                    onClick={() => {
+                      setThemeName(t.id);
+                      setShowThemeMenu(false);
+                    }}
+                  >
+                    <span className="theme-option-preview" style={{ background: t.vars['--bg'], borderColor: t.vars['--primary'] }}>
+                      <span className="theme-option-accent" style={{ background: t.vars['--primary'] }} />
+                    </span>
+                    <span className="theme-option-label">{t.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
-            <button id="share-btn" className="btn-icon" title="Share code" onClick={onShare}>
-              <ShareIcon />
-            </button>
+          <div className="navbar-divider" />
 
-            <button
-              id="run-btn"
-              className={`btn-run ${isRunning ? 'running' : ''}`}
-              onClick={onRun}
-              disabled={isRunning}
-            >
-              {isRunning ? <div className="spinner" /> : <RunIcon />}
-              <span>{isRunning ? 'Running…' : 'Run'}</span>
-            </button>
-          </>
-        )}
+          {/* Desktop Auth */}
+          {user ? (
+            <div className="user-profile-wrapper" ref={userMenuRef}>
+              <button 
+                className={`btn-profile ${showUserMenu ? 'active' : ''}`}
+                onClick={() => setShowUserMenu(!showUserMenu)}
+              >
+                <div className="user-avatar">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <HiOutlineChevronDown className="select-chevron" />
+              </button>
 
-        <div className="navbar-divider" />
-
-        {/* Theme Switcher */}
-        <div className="theme-switcher-wrapper" ref={themeMenuRef}>
-          <button
-            className={`btn-icon ${showThemeMenu ? 'active' : ''}`}
-            onClick={() => setShowThemeMenu(o => !o)}
-            title="Change theme"
-          >
-            <PaletteIcon />
-          </button>
-          {showThemeMenu && (
-            <div className="dropdown-menu theme-dropdown">
-              <div className="dropdown-header">Theme</div>
-              {themeList.map((t) => (
-                <button
-                  key={t.id}
-                  className={`dropdown-item ${themeName === t.id ? 'active' : ''}`}
-                  onClick={() => {
-                    setThemeName(t.id);
-                    setShowThemeMenu(false);
-                  }}
-                >
-                  <span className="theme-option-preview" style={{ background: t.vars['--bg'], borderColor: t.vars['--primary'] }}>
-                    <span className="theme-option-accent" style={{ background: t.vars['--primary'] }} />
-                  </span>
-                  <span className="theme-option-label">{t.label}</span>
-                </button>
-              ))}
+              {showUserMenu && (
+                <div className="dropdown-menu user-dropdown">
+                  <div className="user-info">
+                    <p className="user-name">{user.name}</p>
+                    <p className="user-email">{user.email}</p>
+                  </div>
+                  <div className="dropdown-divider" />
+                  <Link to="/history" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
+                    <HiOutlineClock />
+                    <span>History</span>
+                  </Link>
+                  <div className="dropdown-divider" />
+                  <button className="dropdown-item logout" onClick={() => { logout(); setShowUserMenu(false); }}>
+                    <HiOutlineLogout />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="auth-btns">
+              <Link to="/login" className="btn-login">Login</Link>
+              <Link to="/signup" className="btn-signup">Sign Up</Link>
             </div>
           )}
         </div>
 
-        {/* Auth Section */}
-        {user ? (
-          <div className="user-profile-wrapper" ref={userMenuRef}>
-            <button 
-              className={`btn-profile ${showUserMenu ? 'active' : ''}`}
-              onClick={() => setShowUserMenu(!showUserMenu)}
-            >
-              <div className="user-avatar">
+        {/* Run Button (Always Visible) */}
+        {isEditorPage && (
+          <button
+            id="run-btn"
+            className={`btn-run ${isRunning ? 'running' : ''}`}
+            onClick={onRun}
+            disabled={isRunning}
+          >
+            {isRunning ? <div className="spinner" /> : <RunIcon />}
+            <span>{isRunning ? 'Running…' : 'Run'}</span>
+          </button>
+        )}
+
+        {/* Mobile "More" Menu Button */}
+        <div className="mobile-only-actions" ref={mobileMenuRef}>
+          <button 
+            className={`btn-icon mobile-menu-toggle ${showMobileMenu ? 'active' : ''}`}
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+          >
+            {user ? (
+              <div className="user-avatar mini">
                 {user.name.charAt(0).toUpperCase()}
               </div>
-              <HiOutlineChevronDown className="select-chevron" />
-            </button>
+            ) : (
+              <HiOutlineDotsVertical />
+            )}
+          </button>
 
-            {showUserMenu && (
-              <div className="dropdown-menu user-dropdown">
-                <div className="user-info">
+          {showMobileMenu && (
+            <div className="dropdown-menu mobile-dropdown">
+              {user && (
+                <div className="user-info mobile">
                   <p className="user-name">{user.name}</p>
                   <p className="user-email">{user.email}</p>
                 </div>
-                <div className="dropdown-divider" />
-                <Link to="/history" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
-                  <HiOutlineClock />
-                  <span>History</span>
-                </Link>
-                <div className="dropdown-divider" />
-                <button className="dropdown-item logout" onClick={() => { logout(); setShowUserMenu(false); }}>
-                  <HiOutlineLogout />
-                  <span>Logout</span>
-                </button>
+              )}
+              
+              <div className="dropdown-header">Actions</div>
+              <button className="dropdown-item" onClick={() => { onAIToggle(); setShowMobileMenu(false); }}>
+                <HiOutlineSparkles />
+                <span>AI Assistant</span>
+              </button>
+              <button className="dropdown-item" onClick={() => { onShare(); setShowMobileMenu(false); }}>
+                <HiOutlineShare />
+                <span>Share Code</span>
+              </button>
+              
+              <div className="dropdown-divider" />
+              <div className="dropdown-header">Appearance</div>
+              <div className="mobile-theme-list">
+                {themeList.map((t) => (
+                  <button
+                    key={t.id}
+                    className={`dropdown-item ${themeName === t.id ? 'active' : ''}`}
+                    onClick={() => setThemeName(t.id)}
+                  >
+                    <span className="theme-option-preview" style={{ background: t.vars['--bg'], borderColor: t.vars['--primary'] }}>
+                      <span className="theme-option-accent" style={{ background: t.vars['--primary'] }} />
+                    </span>
+                    <span>{t.label}</span>
+                  </button>
+                ))}
               </div>
-            )}
-          </div>
-        ) : (
-          <div className="auth-btns">
-            <Link to="/login" className="btn-login">Login</Link>
-            <Link to="/signup" className="btn-signup">Sign Up</Link>
-          </div>
-        )}
+
+              <div className="dropdown-divider" />
+              {user ? (
+                <>
+                  <Link to="/history" className="dropdown-item" onClick={() => setShowMobileMenu(false)}>
+                    <HiOutlineClock />
+                    <span>History</span>
+                  </Link>
+                  <button className="dropdown-item logout" onClick={() => { logout(); setShowMobileMenu(false); }}>
+                    <HiOutlineLogout />
+                    <span>Logout</span>
+                  </button>
+                </>
+              ) : (
+                <div className="mobile-auth-grid">
+                  <Link to="/login" className="dropdown-item" onClick={() => setShowMobileMenu(false)}>Login</Link>
+                  <Link to="/signup" className="dropdown-item" onClick={() => setShowMobileMenu(false)}>Sign Up</Link>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Language Bottom Sheet / Dropdown */}
