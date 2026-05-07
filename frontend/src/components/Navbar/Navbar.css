@@ -151,100 +151,210 @@
   box-shadow: 0 0 10px var(--accent-dim);
 }
 
-/* ─── Theme Switcher ─── */
-.theme-switcher-wrapper {
+.navbar-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  margin: 0 0.4rem;
+}
+
+/* ─── Auth Buttons ─── */
+.auth-btns {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.btn-login {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+
+.btn-login:hover {
+  background: var(--surface-2);
+  color: var(--text-primary);
+}
+
+.btn-signup {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  transition: all 0.15s;
+  box-shadow: 0 4px 12px var(--accent-dim);
+}
+
+.btn-signup:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+/* ─── User Profile ─── */
+.user-profile-wrapper {
   position: relative;
 }
 
-.btn-theme.active {
-  background: var(--accent-dim);
-  border-color: var(--accent);
-  color: var(--accent-light);
+.btn-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 8px 3px 3px;
+  cursor: pointer;
+  transition: all 0.15s;
 }
 
-.theme-dropdown {
+.btn-profile:hover, .btn-profile.active {
+  background: var(--surface-3);
+  border-color: var(--border-hover);
+}
+
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, var(--accent), var(--teal));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+/* ─── Dropdown Menu ─── */
+.dropdown-menu {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  min-width: 200px;
+  min-width: 220px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
   z-index: 200;
   overflow: hidden;
-  animation: themeDropIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: dropIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes themeDropIn {
+@keyframes dropIn {
   from { opacity: 0; transform: translateY(-6px) scale(0.96); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.theme-dropdown-header {
-  padding: 0.6rem 0.875rem 0.4rem;
-  font-size: 0.68rem;
-  font-weight: 600;
+.dropdown-header {
+  padding: 0.75rem 1rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-muted);
-  border-bottom: 1px solid var(--border);
 }
 
-.theme-option {
+.dropdown-item {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.75rem;
   width: 100%;
-  padding: 0.6rem 0.875rem;
+  padding: 0.75rem 1rem;
   background: transparent;
   border: none;
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 500;
   color: var(--text-primary);
+  text-decoration: none;
   transition: background 0.12s;
+  text-align: left;
 }
 
-.theme-option:hover {
+.dropdown-item svg {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+}
+
+.dropdown-item:hover {
   background: var(--surface-2);
 }
 
-.theme-option.active {
+.dropdown-item.active {
   background: var(--accent-dim);
+  color: var(--accent-light);
 }
 
+.dropdown-item.logout:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.dropdown-item.logout:hover svg {
+  color: #ef4444;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+
+.user-info {
+  padding: 1rem;
+}
+
+.user-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.user-email {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 2px 0 0;
+}
+
+/* Theme specific in dropdown */
 .theme-option-preview {
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
-  border: 2px solid var(--border);
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: border-color 0.15s;
-}
-
-.theme-option.active .theme-option-preview {
-  border-color: var(--accent);
 }
 
 .theme-option-accent {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
 }
 
-.theme-option-label {
-  flex: 1;
-  text-align: left;
-}
-
-.theme-check {
-  color: var(--accent);
-  flex-shrink: 0;
+/* ─── Mobile Adjustments ─── */
+@media (max-width: 768px) {
+  .auth-btns { gap: 0.2rem; }
+  .btn-signup { padding: 5px 10px; font-size: 0.7rem; }
+  .btn-login { padding: 5px 8px; font-size: 0.7rem; }
+  .navbar-divider { display: none; }
+  .dropdown-menu {
+    position: fixed;
+    top: 52px;
+    right: 0.5rem;
+    min-width: 200px;
+  }
 }
 
 /* ─── Connection Badge ─── */

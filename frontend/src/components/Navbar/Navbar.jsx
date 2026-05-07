@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { LANGUAGES } from '../../constants/languages';
 import { useTheme } from '../../themes/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 import { getThemeList } from '../../themes/themes';
+import { HiOutlineUserCircle, HiOutlineLogout, HiOutlineClock, HiOutlineChevronDown } from 'react-icons/hi';
 import './Navbar.css';
 
 const RunIcon = () => (
@@ -46,31 +49,38 @@ export default function Navbar({
 }) {
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  
   const { themeName, setThemeName } = useTheme();
+  const { user, logout } = useAuth();
+  const location = useLocation();
+  
   const themeMenuRef = useRef(null);
+  const userMenuRef = useRef(null);
+  
   const lang = LANGUAGES.find((l) => l.id === selectedLanguage) || LANGUAGES[0];
   const themeList = getThemeList();
 
-  // Close theme menu on outside click
+  // Close menus on outside click
   useEffect(() => {
-    if (!showThemeMenu) return;
     const handler = (e) => {
       if (themeMenuRef.current && !themeMenuRef.current.contains(e.target)) {
         setShowThemeMenu(false);
       }
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setShowUserMenu(false);
+      }
     };
     document.addEventListener('mousedown', handler);
-    document.addEventListener('touchstart', handler);
-    return () => {
-      document.removeEventListener('mousedown', handler);
-      document.removeEventListener('touchstart', handler);
-    };
-  }, [showThemeMenu]);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const isEditorPage = location.pathname === '/';
 
   return (
     <nav className="navbar">
       {/* Logo */}
-      <div className="navbar-logo">
+      <Link to="/" className="navbar-logo">
         <div className="logo-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="url(#bolt)" />
@@ -86,21 +96,20 @@ export default function Navbar({
           Compile<span className="logo-accent">X</span>
         </span>
         <span className="logo-badge">AI</span>
-        {version && <span className="version-info">v{version}</span>}
-      </div>
+      </Link>
 
-      {/* Center: Language Selector */}
+      {/* Center: Language Selector (Only on editor page) */}
       <div className="navbar-center">
-        <button
-          className="language-selector-wrapper"
-          onClick={() => setShowLangMenu(true)}
-        >
-          <span className="language-icon">{lang.icon}</span>
-          <span className="language-selector-text">{lang.label}</span>
-          <svg className="select-chevron" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" fill="none" />
-          </svg>
-        </button>
+        {isEditorPage && (
+          <button
+            className="language-selector-wrapper"
+            onClick={() => setShowLangMenu(true)}
+          >
+            <span className="language-icon">{lang.icon}</span>
+            <span className="language-selector-text">{lang.label}</span>
+            <HiOutlineChevronDown className="select-chevron" />
+          </button>
+        )}
       </div>
 
       {/* Right: Actions */}
@@ -113,82 +122,106 @@ export default function Navbar({
           </span>
         )}
 
-        {/* AI Toggle */}
-        <button
-          id="ai-panel-toggle"
-          className={`btn-icon btn-ai ${aiPanelOpen ? 'active' : ''}`}
-          onClick={onAIToggle}
-          title="Toggle AI Assistant"
-        >
-          <AIIcon />
-          <span>AI</span>
-        </button>
+        {/* Editor Actions (Only on editor page) */}
+        {isEditorPage && (
+          <>
+            <button
+              id="ai-panel-toggle"
+              className={`btn-icon btn-ai ${aiPanelOpen ? 'active' : ''}`}
+              onClick={onAIToggle}
+              title="Toggle AI Assistant"
+            >
+              <AIIcon />
+              <span>AI</span>
+            </button>
+
+            <button id="share-btn" className="btn-icon" title="Share code" onClick={onShare}>
+              <ShareIcon />
+            </button>
+
+            <button
+              id="run-btn"
+              className={`btn-run ${isRunning ? 'running' : ''}`}
+              onClick={onRun}
+              disabled={isRunning}
+            >
+              {isRunning ? <div className="spinner" /> : <RunIcon />}
+              <span>{isRunning ? 'Running…' : 'Run'}</span>
+            </button>
+          </>
+        )}
+
+        <div className="navbar-divider" />
 
         {/* Theme Switcher */}
         <div className="theme-switcher-wrapper" ref={themeMenuRef}>
           <button
-            id="theme-toggle"
-            className={`btn-icon btn-theme ${showThemeMenu ? 'active' : ''}`}
+            className={`btn-icon ${showThemeMenu ? 'active' : ''}`}
             onClick={() => setShowThemeMenu(o => !o)}
             title="Change theme"
           >
             <PaletteIcon />
           </button>
           {showThemeMenu && (
-            <div className="theme-dropdown">
-              <div className="theme-dropdown-header">Theme</div>
+            <div className="dropdown-menu theme-dropdown">
+              <div className="dropdown-header">Theme</div>
               {themeList.map((t) => (
                 <button
                   key={t.id}
-                  className={`theme-option ${themeName === t.id ? 'active' : ''}`}
+                  className={`dropdown-item ${themeName === t.id ? 'active' : ''}`}
                   onClick={() => {
                     setThemeName(t.id);
                     setShowThemeMenu(false);
                   }}
                 >
-                  <span className="theme-option-preview" style={{
-                    background: t.vars['--bg'],
-                    borderColor: t.vars['--primary'],
-                  }}>
+                  <span className="theme-option-preview" style={{ background: t.vars['--bg'], borderColor: t.vars['--primary'] }}>
                     <span className="theme-option-accent" style={{ background: t.vars['--primary'] }} />
                   </span>
                   <span className="theme-option-label">{t.label}</span>
-                  {themeName === t.id && (
-                    <svg className="theme-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  )}
                 </button>
               ))}
             </div>
           )}
         </div>
 
-        {/* Share */}
-        <button id="share-btn" className="btn-icon" title="Share code" onClick={onShare}>
-          <ShareIcon />
-        </button>
+        {/* Auth Section */}
+        {user ? (
+          <div className="user-profile-wrapper" ref={userMenuRef}>
+            <button 
+              className={`btn-profile ${showUserMenu ? 'active' : ''}`}
+              onClick={() => setShowUserMenu(!showUserMenu)}
+            >
+              <div className="user-avatar">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <HiOutlineChevronDown className="select-chevron" />
+            </button>
 
-        {/* Run Button */}
-        <button
-          id="run-btn"
-          className={`btn-run ${isRunning ? 'running' : ''}`}
-          onClick={onRun}
-          disabled={isRunning}
-          title="Run code (Ctrl+Enter)"
-        >
-          {isRunning ? (
-            <>
-              <div className="spinner" />
-              <span>Running…</span>
-            </>
-          ) : (
-            <>
-              <RunIcon />
-              <span>Run</span>
-            </>
-          )}
-        </button>
+            {showUserMenu && (
+              <div className="dropdown-menu user-dropdown">
+                <div className="user-info">
+                  <p className="user-name">{user.name}</p>
+                  <p className="user-email">{user.email}</p>
+                </div>
+                <div className="dropdown-divider" />
+                <Link to="/history" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
+                  <HiOutlineClock />
+                  <span>History</span>
+                </Link>
+                <div className="dropdown-divider" />
+                <button className="dropdown-item logout" onClick={() => { logout(); setShowUserMenu(false); }}>
+                  <HiOutlineLogout />
+                  <span>Logout</span>
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="auth-btns">
+            <Link to="/login" className="btn-login">Login</Link>
+            <Link to="/signup" className="btn-signup">Sign Up</Link>
+          </div>
+        )}
       </div>
 
       {/* Language Bottom Sheet / Dropdown */}

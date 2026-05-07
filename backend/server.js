@@ -2,11 +2,23 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import http from 'http';
+import mongoose from 'mongoose';
+import cookieParser from 'cookie-parser';
 import { Server } from 'socket.io';
 import { executeCodeLocally, executeInteractive } from './execute.js';
 
+// Route files
+import authRoutes from './routes/auth.js';
+import historyRoutes from './routes/history.js';
+
 const app = express();
 const server = http.createServer(app);
+
+// Connect to MongoDB
+const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/compilex';
+mongoose.connect(mongoUri)
+    .then(() => console.log('✓ MongoDB Connected'))
+    .catch(err => console.error('✗ MongoDB Connection Error:', err));
 
 // Allowed frontend origins
 const rawFrontendUrl = process.env.FRONTEND_URL || '';
@@ -20,14 +32,11 @@ const ALLOWED_ORIGINS = [
     'http://localhost:3001',
 ].filter(Boolean);
 
-// Super Fail-safe CORS: If FRONTEND_URL is missing or '*', allow everything.
-// Otherwise, use the list but fall back to 'true' if we are in debug mode.
+// Super Fail-safe CORS
 const corsOrigin = (origin, callback) => {
-    // If no origin (like mobile apps or curl), or if it matches our list
     if (!origin || cleanFrontendUrl === '*' || ALLOWED_ORIGINS.includes(origin.replace(/\/$/, ''))) {
         callback(null, true);
     } else {
-        // As a temporary fix to get the user online, we allow it but log a warning
         console.warn(`CORS: Potential mismatch for origin ${origin}. Allowing for now.`);
         callback(null, true); 
     }
@@ -46,8 +55,14 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors({
     origin: corsOrigin,
+    credentials: true, // Allow cookies
 }));
 app.use(express.json({ limit: '5mb' }));
+app.use(cookieParser());
+
+// Mount routes
+app.use('/auth', authRoutes);
+app.use('/history', historyRoutes);
 
 // Health check
 app.get('/', (req, res) => {
