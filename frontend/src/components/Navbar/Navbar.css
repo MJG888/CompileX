@@ -454,25 +454,52 @@
 @media (max-width: 768px) {
   .navbar {
     padding: 0 0.5rem;
-    height: 48px;
+    height: 52px;
+    gap: 5px;
   }
-  .logo-icon { width: 30px; height: 30px; }
-  .logo-text { font-size: 1rem; }
+  .logo-icon { width: 32px; height: 32px; flex-shrink: 0; }
+  .logo-text { display: none; } /* Hide text on mobile to save space */
   .logo-badge { display: none; }
   .version-info { display: none; }
-  .language-selector-wrapper { height: 30px; padding: 0 0.5rem; }
-  .language-selector-text { font-size: 0.72rem; }
-  .btn-run { padding: 0 0.625rem; height: 30px; font-size: 0.72rem; }
+  
+  .navbar-center {
+    flex: 1;
+    min-width: 0;
+    justify-content: flex-start;
+  }
+
+  .language-selector-wrapper { 
+    height: 32px; 
+    padding: 0 0.4rem; 
+    min-width: 80px;
+    max-width: 110px;
+  }
+  .language-selector-text { 
+    font-size: 0.75rem; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .btn-run { padding: 0 0.75rem; height: 34px; border-radius: 50%; width: 34px; justify-content: center; }
   .btn-run span { display: none; }
-  .btn-icon { height: 30px; padding: 0 0.5rem; }
+  .btn-run svg { font-size: 1.1rem; margin: 0; }
+
+  .btn-icon { height: 34px; padding: 0; width: 34px; justify-content: center; }
   .btn-icon span { display: none; }
-  .navbar-actions { gap: 0.2rem; }
-  .connection-badge span:not(.connection-dot) { display: none; }
+  .btn-icon svg { font-size: 1.1rem; margin: 0; }
+
+  .navbar-actions { gap: 4px; }
+  .connection-badge { display: none; } /* Hide on mobile to save space */
+
+  .auth-btns { gap: 4px; }
+  .btn-login, .btn-signup { padding: 4px 8px; font-size: 0.7rem; }
+  .btn-signup { display: none; } /* Hide signup on mobile navbar, user can use login page */
 
   /* Theme dropdown positioned correctly on mobile */
   .theme-dropdown {
     position: fixed;
-    top: 52px;
+    top: 56px;
     right: 0.5rem;
     left: auto;
     min-width: 180px;

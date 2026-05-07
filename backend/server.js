@@ -1,4 +1,11 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, '.env') });
+
 import express from 'express';
 import cors from 'cors';
 import http from 'http';
@@ -16,6 +23,7 @@ const server = http.createServer(app);
 
 // Connect to MongoDB
 const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/compilex';
+console.log('📡 Attempting to connect to:', mongoUri.split('@')[1] ? `mongodb+srv://***@${mongoUri.split('@')[1]}` : mongoUri);
 mongoose.connect(mongoUri)
     .then(() => console.log('✓ MongoDB Connected'))
     .catch(err => console.error('✗ MongoDB Connection Error:', err));
@@ -156,6 +164,15 @@ io.on('connection', (socket) => {
         if (activeProcess && !activeProcess.killed) {
             activeProcess.kill('SIGKILL');
         }
+    });
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+    console.error('💥 GLOBAL ERROR:', err.stack);
+    res.status(500).json({
+        error: 'Internal Server Error',
+        message: err.message,
     });
 });
 
