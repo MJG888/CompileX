@@ -12,7 +12,7 @@ const generateToken = (id) => {
 };
 
 const sendTokenResponse = (user, statusCode, res) => {
-    const token = generateToken(user._id);
+    const token = user.getSignedJwtToken();
 
     const isProduction = process.env.NODE_ENV === 'production';
 
