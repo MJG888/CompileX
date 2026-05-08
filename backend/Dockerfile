@@ -1,4 +1,4 @@
-FROM node:18-slim
+FROM node:20-slim
 
 # Install Java JDK 17 and Python 3
 RUN apt-get update && \
