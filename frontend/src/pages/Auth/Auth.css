@@ -191,3 +191,17 @@
         font-size: 16px; /* Prevents iOS zoom */
     }
 }
+
+/* ─── Browser Autocomplete Overrides ─── */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #fff;
+    -webkit-box-shadow: 0 0 0px 1000px rgba(15, 23, 42, 1) inset;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+[data-theme='light'] input:-webkit-autofill {
+    -webkit-text-fill-color: #1e293b;
+    -webkit-box-shadow: 0 0 0px 1000px #f1f5f9 inset;
+}
