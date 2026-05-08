@@ -103,6 +103,15 @@ const IDE = () => {
     });
   }, [selectedLanguage, activeFileName]);
 
+  // ─── State Persistence Refs ───
+  const latestFiles = useRef(filesByLang);
+  const latestLang = useRef(selectedLanguage);
+  const latestStdin = useRef(stdin);
+
+  useEffect(() => { latestFiles.current = filesByLang; }, [filesByLang]);
+  useEffect(() => { latestLang.current = selectedLanguage; }, [selectedLanguage]);
+  useEffect(() => { latestStdin.current = stdin; }, [stdin]);
+
   // ─── WebSocket Setup ───
   useEffect(() => {
     socket.connect();
@@ -113,54 +122,33 @@ const IDE = () => {
     const onCompComplete = () => setIsCompiling(false);
     const onTermOutput = data => setTerminalData(p => [...p, { type: 'output', text: data }]);
     const onTermError = data => setTerminalData(p => [...p, { type: 'error', text: data }]);
-
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
-    socket.on('compilation_start', onCompStart);
-    socket.on('compilation_complete', onCompComplete);
-    socket.on('terminal_output', onTermOutput);
-    socket.on('terminal_error', onTermError);
     
-    return () => {
-      socket.off('connect', onConnect);
-      socket.off('disconnect', onDisconnect);
-      socket.off('compilation_start', onCompStart);
-      socket.off('compilation_complete', onCompComplete);
-      socket.off('terminal_output', onTermOutput);
-      socket.off('terminal_error', onTermError);
-    };
-  }, []);
-    
-    socket.on('execution_complete', async (data) => {
+    const onExecComplete = async (data) => {
       setIsRunning(false);
       setIsCompiling(false);
       setIsInteractive(false);
       setResult(data);
 
-      // ─── Auto-Save to History ───
       if (user && data.status?.id === 3) {
         try {
           await axios.post(`${BACKEND_URL}/history`, {
-            language: selectedLanguage,
-            files: activeLangFiles,
-            stdin: stdin,
+            language: latestLang.current,
+            files: latestFiles.current[latestLang.current],
+            stdin: latestStdin.current,
             output: {
               stdout: data.stdout || '',
               stderr: data.stderr || '',
-              compile_output: data.compile_output || ''
+              compile_output: data.compile_output || '',
+              message: data.message || '',
+              time: data.time || '0',
+              memory: data.memory || '0'
             },
             status: data.status
           });
         } catch (err) {
-          console.error('Failed to save history', err);
+          console.error('History Save Error:', err);
         }
       }
-    });
-
-    return () => {
-      socket.off('connect');
-      socket.off('disconnect');
-      socket.off('compilation_start');
       socket.off('compilation_complete');
       socket.off('terminal_output');
       socket.off('terminal_error');
