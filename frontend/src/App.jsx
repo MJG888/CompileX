@@ -18,10 +18,12 @@ import './App.css';
 const AIPanel = lazy(() => import('./components/AIPanel/AIPanel'));
 
 const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000').replace(/\/$/, '');
 const socket = io(BACKEND_URL, {
   autoConnect: false,
   reconnection: true,
+  transports: ['websocket', 'polling'],
+  withCredentials: true
 });
 
 const initialFiles = LANGUAGES.reduce((acc, lang) => {
