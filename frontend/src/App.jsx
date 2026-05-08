@@ -106,12 +106,30 @@ const IDE = () => {
   // ─── WebSocket Setup ───
   useEffect(() => {
     socket.connect();
-    socket.on('connect', () => setBackendConnected(true));
-    socket.on('disconnect', () => setBackendConnected(false));
-    socket.on('compilation_start', () => setIsCompiling(true));
-    socket.on('compilation_complete', () => setIsCompiling(false));
-    socket.on('terminal_output', data => setTerminalData(p => [...p, { type: 'output', text: data }]));
-    socket.on('terminal_error', data => setTerminalData(p => [...p, { type: 'error', text: data }]));
+    
+    const onConnect = () => setBackendConnected(true);
+    const onDisconnect = () => setBackendConnected(false);
+    const onCompStart = () => setIsCompiling(true);
+    const onCompComplete = () => setIsCompiling(false);
+    const onTermOutput = data => setTerminalData(p => [...p, { type: 'output', text: data }]);
+    const onTermError = data => setTerminalData(p => [...p, { type: 'error', text: data }]);
+
+    socket.on('connect', onConnect);
+    socket.on('disconnect', onDisconnect);
+    socket.on('compilation_start', onCompStart);
+    socket.on('compilation_complete', onCompComplete);
+    socket.on('terminal_output', onTermOutput);
+    socket.on('terminal_error', onTermError);
+    
+    return () => {
+      socket.off('connect', onConnect);
+      socket.off('disconnect', onDisconnect);
+      socket.off('compilation_start', onCompStart);
+      socket.off('compilation_complete', onCompComplete);
+      socket.off('terminal_output', onTermOutput);
+      socket.off('terminal_error', onTermError);
+    };
+  }, []);
     
     socket.on('execution_complete', async (data) => {
       setIsRunning(false);
