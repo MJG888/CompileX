@@ -10,17 +10,28 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formError, setFormError] = useState('');
     
     const { login } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setFormError('');
+
+        if (!email.trim() || !password.trim()) {
+            setFormError('Please fill in all fields');
+            return;
+        }
+
         setIsSubmitting(true);
-        const result = await login({ email, password });
+        const result = await login({ email: email.trim(), password });
         setIsSubmitting(false);
+
         if (result.success) {
             navigate('/');
+        } else {
+            setFormError(result.error || 'Login failed');
         }
     };
 
@@ -29,6 +40,7 @@ const Login = () => {
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
                 className="auth-card"
             >
                 <div className="auth-header">
@@ -45,7 +57,9 @@ const Login = () => {
                                 type="email" 
                                 placeholder="name@example.com"
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                onChange={(e) => { setEmail(e.target.value); setFormError(''); }}
+                                className={formError ? 'input-error' : ''}
+                                autoComplete="email"
                                 required
                             />
                         </div>
@@ -59,18 +73,27 @@ const Login = () => {
                                 type={showPassword ? "text" : "password"} 
                                 placeholder="••••••••"
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                onChange={(e) => { setPassword(e.target.value); setFormError(''); }}
+                                className={formError ? 'input-error' : ''}
+                                autoComplete="current-password"
                                 required
                             />
                             <button 
                                 type="button" 
                                 className="toggle-password"
                                 onClick={() => setShowPassword(!showPassword)}
+                                tabIndex={-1}
                             >
                                 {showPassword ? <HiOutlineEyeOff /> : <HiOutlineEye />}
                             </button>
                         </div>
                     </div>
+
+                    {formError && (
+                        <div className="form-error">
+                            <span>⚠</span> {formError}
+                        </div>
+                    )}
 
                     <button 
                         type="submit" 

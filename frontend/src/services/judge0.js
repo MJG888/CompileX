@@ -1,7 +1,7 @@
 // Custom Local Execution Service
-// Replaces Judge0 CE to run natively on localhost:5000
+// Connects to CompileX backend for code execution
 
-const LOCAL_BACKEND_URL = 'http://localhost:5000';
+const LOCAL_BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
 export const executeCode = async (files, mainFile, languageId, stdin = '') => {
   // We use base64 encoding just like Judge0 to avoid special character escaping issues in JSON

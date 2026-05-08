@@ -11,25 +11,44 @@ const Signup = () => {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formError, setFormError] = useState('');
     
     const { signup } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setFormError('');
+
+        if (!name.trim() || !email.trim() || !password.trim()) {
+            setFormError('Please fill in all fields');
+            return;
+        }
+
+        if (password.length < 6) {
+            setFormError('Password must be at least 6 characters');
+            return;
+        }
+
         setIsSubmitting(true);
-        const result = await signup({ name, email, password });
+        const result = await signup({ name: name.trim(), email: email.trim(), password });
         setIsSubmitting(false);
+
         if (result.success) {
             navigate('/');
+        } else {
+            setFormError(result.error || 'Signup failed');
         }
     };
+
+    const clearError = () => { if (formError) setFormError(''); };
 
     return (
         <div className="auth-container">
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
                 className="auth-card"
             >
                 <div className="auth-header">
@@ -46,7 +65,9 @@ const Signup = () => {
                                 type="text" 
                                 placeholder="John Doe"
                                 value={name}
-                                onChange={(e) => setName(e.target.value)}
+                                onChange={(e) => { setName(e.target.value); clearError(); }}
+                                className={formError ? 'input-error' : ''}
+                                autoComplete="name"
                                 required
                             />
                         </div>
@@ -60,7 +81,9 @@ const Signup = () => {
                                 type="email" 
                                 placeholder="name@example.com"
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                onChange={(e) => { setEmail(e.target.value); clearError(); }}
+                                className={formError ? 'input-error' : ''}
+                                autoComplete="email"
                                 required
                             />
                         </div>
@@ -74,7 +97,9 @@ const Signup = () => {
                                 type={showPassword ? "text" : "password"} 
                                 placeholder="••••••••"
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                onChange={(e) => { setPassword(e.target.value); clearError(); }}
+                                className={formError ? 'input-error' : ''}
+                                autoComplete="new-password"
                                 minLength={6}
                                 required
                             />
@@ -82,11 +107,18 @@ const Signup = () => {
                                 type="button" 
                                 className="toggle-password"
                                 onClick={() => setShowPassword(!showPassword)}
+                                tabIndex={-1}
                             >
                                 {showPassword ? <HiOutlineEyeOff /> : <HiOutlineEye />}
                             </button>
                         </div>
                     </div>
+
+                    {formError && (
+                        <div className="form-error">
+                            <span>⚠</span> {formError}
+                        </div>
+                    )}
 
                     <button 
                         type="submit" 

@@ -6,13 +6,28 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, '.env') });
 
+// ─── Startup Environment Validation ───
+const requiredEnvVars = ['MONGODB_URI'];
+const missingVars = requiredEnvVars.filter((v) => !process.env[v]);
+if (missingVars.length > 0) {
+    console.error(`✗ FATAL: Missing required environment variables: ${missingVars.join(', ')}`);
+    console.error('  → Set these in your .env file or deployment platform (Render/Vercel).');
+    process.exit(1);
+}
+if (!process.env.JWT_SECRET) {
+    console.warn('⚠ WARNING: JWT_SECRET is not set. Authentication will be insecure.');
+}
+if (!process.env.FRONTEND_URL) {
+    console.warn('⚠ WARNING: FRONTEND_URL is not set. CORS will allow all origins.');
+}
+
 import express from 'express';
 import cors from 'cors';
 import http from 'http';
-import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import { Server } from 'socket.io';
 import { executeCodeLocally, executeInteractive } from './execute.js';
+import connectDB from './config/db.js';
 
 // Route files
 import authRoutes from './routes/auth.js';
@@ -20,13 +35,6 @@ import historyRoutes from './routes/history.js';
 
 const app = express();
 const server = http.createServer(app);
-
-// Connect to MongoDB
-const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/compilex';
-console.log('📡 Attempting to connect to:', mongoUri.split('@')[1] ? `mongodb+srv://***@${mongoUri.split('@')[1]}` : mongoUri);
-mongoose.connect(mongoUri)
-    .then(() => console.log('✓ MongoDB Connected'))
-    .catch(err => console.error('✗ MongoDB Connection Error:', err));
 
 // Allowed frontend origins
 const rawFrontendUrl = process.env.FRONTEND_URL || '';
@@ -176,6 +184,17 @@ app.use((err, req, res, next) => {
     });
 });
 
-server.listen(PORT, () => {
-    console.log(`✓ CompileX Backend running on http://localhost:${PORT}`);
-});
+// ─── Start Server ───
+const startServer = async () => {
+    try {
+        await connectDB();
+        server.listen(PORT, () => {
+            console.log(`✓ CompileX Backend running on port ${PORT}`);
+        });
+    } catch (err) {
+        console.error('✗ FATAL: Server failed to start:', err.message);
+        process.exit(1);
+    }
+};
+
+startServer();

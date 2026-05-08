@@ -316,7 +316,28 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Toaster position="top-right" />
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            duration: 2500,
+            style: {
+              background: 'rgba(30, 30, 45, 0.95)',
+              color: '#fff',
+              fontSize: '0.85rem',
+              padding: '10px 16px',
+              borderRadius: '10px',
+              maxWidth: '360px',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255,255,255,0.08)',
+            },
+            success: {
+              iconTheme: { primary: '#22c55e', secondary: '#fff' },
+            },
+            error: {
+              iconTheme: { primary: '#ef4444', secondary: '#fff' },
+            },
+          }}
+        />
         <Routes>
           <Route path="/" element={<IDE />} />
           <Route path="/login" element={<Login />} />
