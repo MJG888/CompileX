@@ -195,7 +195,7 @@ const IDE = () => {
       socket.off('compilation_complete', onCompComplete);
       socket.off('terminal_output', onTermOutput);
       socket.off('terminal_error', onTermError);
-      socket.on('execution_complete', onExecComplete);
+      socket.off('execution_complete', onExecComplete);
     };
   }, [user]); // Only re-bind if user changes (needed for history save logic)
 

@@ -55,10 +55,11 @@ const History = () => {
     };
 
     const filteredHistory = history.filter(item => {
-        const content = item.files[0]?.content || '';
-        const matchesSearch = item.language.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        const content = item.files?.[0]?.content || '';
+        const langStr = item.language || '';
+        const matchesSearch = langStr.toLowerCase().includes(searchTerm.toLowerCase()) || 
                              content.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesLang = filterLang === 'all' || item.language === filterLang;
+        const matchesLang = filterLang === 'all' || langStr === filterLang;
         return matchesSearch && matchesLang;
     });
 
@@ -150,7 +151,7 @@ const History = () => {
                                     </div>
                                     
                                     <div className="code-preview">
-                                        <pre>{item.files[0]?.content}</pre>
+                                        <pre>{item.files?.[0]?.content || ''}</pre>
                                     </div>
 
                                     <div className="item-footer">

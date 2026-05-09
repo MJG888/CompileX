@@ -23,6 +23,9 @@ const setAxiosAuthHeader = (token) => {
     }
 };
 
+// Initial setup to prevent race conditions on page refresh
+setAxiosAuthHeader(getStoredToken());
+
 // Map network errors to user-friendly messages
 const getErrorMessage = (err) => {
     if (!err.response) {
