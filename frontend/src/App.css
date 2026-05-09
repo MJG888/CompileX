@@ -233,19 +233,26 @@ body {
 .panel-divider.horizontal .divider-handle { flex-direction: column; }
 
 .divider-handle span {
-  border-radius: 2px;
+  border-radius: 50%;
   background: var(--border-hover);
-  transition: background 0.15s;
+  transition: all 0.2s;
+  opacity: 0.6;
 }
 
 .panel-divider.vertical .divider-handle span {
-  width: 20px;
-  height: 2px;
+  width: 5px;
+  height: 5px;
 }
 
 .panel-divider.horizontal .divider-handle span {
-  width: 2px;
-  height: 20px;
+  width: 5px;
+  height: 5px;
+}
+
+.panel-divider:hover .divider-handle span {
+  opacity: 1;
+  background: var(--accent);
+  transform: scale(1.2);
 }
 
 /* ─── AI Panel Wrapper ─── */

@@ -2,15 +2,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 24px;
-  padding: 0 0.75rem;
+  height: 28px;
+  padding: 0 1rem;
   background: var(--status-bar-bg);
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.7rem;
+  color: var(--status-bar-text, rgba(255, 255, 255, 0.9));
+  font-size: 0.725rem;
   font-weight: 500;
   flex-shrink: 0;
   z-index: 100;
-  border-top: 1px solid rgba(0,0,0,0.1);
+  border-top: 1px solid var(--border);
 }
 
 .status-left, .status-right {

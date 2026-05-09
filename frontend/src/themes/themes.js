@@ -32,7 +32,8 @@ export const THEMES = {
       '--border':       'rgba(255, 255, 255, 0.08)',
       '--border-hover':  'rgba(255, 119, 28, 0.3)',
 
-      '--status-bar-bg': '#ff771c',
+      '--status-bar-bg': '#1e1a17',
+      '--status-bar-text': '#ff771c',
 
       '--run-btn-bg':    'linear-gradient(135deg, #d4622a, #ff771c)',
       '--run-btn-shadow': 'rgba(255, 119, 28, 0.3)',
@@ -113,7 +114,8 @@ export const THEMES = {
       '--border':       'rgba(54, 59, 108, 0.12)',
       '--border-hover':  'rgba(54, 59, 108, 0.25)',
 
-      '--status-bar-bg': '#363b6c',
+      '--status-bar-bg': '#ffffff',
+      '--status-bar-text': '#363b6c',
 
       '--run-btn-bg':    'linear-gradient(135deg, #4a4f8c, #363b6c)',
       '--run-btn-shadow': 'rgba(54, 59, 108, 0.25)',
