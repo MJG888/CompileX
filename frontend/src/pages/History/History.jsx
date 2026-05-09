@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../../context/AuthContext';
 import { HiOutlineSearch, HiOutlineTrash, HiOutlineCode, HiOutlineCalendar, HiOutlineExternalLink, HiOutlineFilter } from 'react-icons/hi';
 import { useNavigate } from 'react-router-dom';
 import './History.css';
 
 const API_URL = (import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000').replace(/\/$/, '');
+const MotionDiv = motion.div;
 
 const History = () => {
     const [history, setHistory] = useState([]);
@@ -14,14 +14,9 @@ const History = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterLang, setFilterLang] = useState('all');
     
-    const { user } = useAuth();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        fetchHistory();
-    }, []);
-
-    const fetchHistory = async () => {
+    const fetchHistory = useCallback(async () => {
         try {
             setLoading(true);
             const res = await axios.get(`${API_URL}/history`);
@@ -31,7 +26,12 @@ const History = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        const timer = window.setTimeout(fetchHistory, 0);
+        return () => window.clearTimeout(timer);
+    }, [fetchHistory]);
 
     const handleDelete = async (e, id) => {
         e.stopPropagation();
@@ -51,7 +51,7 @@ const History = () => {
             files: item.files,
             stdin: item.stdin
         }));
-        navigate('/');
+        navigate('/compiler');
     };
 
     const filteredHistory = history.filter(item => {
@@ -128,13 +128,13 @@ const History = () => {
                         </div>
                         <h2>No history entries found</h2>
                         <p>Your executed code snippets will appear here once you run them in the IDE.</p>
-                        <button className="goto-ide-btn" onClick={() => navigate('/')}>Start Coding</button>
+                        <button className="goto-ide-btn" onClick={() => navigate('/compiler')}>Start Coding</button>
                     </div>
                 ) : (
                     <div className="history-grid">
                         <AnimatePresence>
                             {filteredHistory.map((item) => (
-                                <motion.div 
+                                <MotionDiv
                                     key={item._id}
                                     layout
                                     initial={{ opacity: 0, y: 20 }}
@@ -145,7 +145,7 @@ const History = () => {
                                     <div className="item-header">
                                         <span className="lang-badge">{item.language}</span>
                                         <div className={`status-indicator ${item.status?.id === 3 ? 'status-success' : 'status-error'}`}>
-                                            <span className="status-dot"></span>
+                                            <span className="history-status-dot"></span>
                                             <span>{item.status?.description || 'Executed'}</span>
                                         </div>
                                     </div>
@@ -158,7 +158,7 @@ const History = () => {
                                          <div className="execution-time">
                                              <HiOutlineCalendar className="footer-icon" />
                                              <span>
-                                                 {new Date(item.timestamp).toLocaleDateString()} • {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                 {new Date(item.timestamp).toLocaleDateString()} - {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                              </span>
                                          </div>
                                          
@@ -179,7 +179,7 @@ const History = () => {
                                              </button>
                                          </div>
                                      </div>
-                                </motion.div>
+                                </MotionDiv>
                             ))}
                         </AnimatePresence>
                     </div>

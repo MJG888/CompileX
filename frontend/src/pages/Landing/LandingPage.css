@@ -179,8 +179,8 @@
   transform: translateY(-1px);
 }
 
-.landing-nav-cta,
-.button {
+.landing-page .landing-nav-cta,
+.landing-page .button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -191,15 +191,19 @@
   transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
 
-.landing-nav-cta {
+.landing-page .landing-nav-cta {
   padding: 0.72rem 1.05rem;
   background: var(--landing-dark);
   color: #fff;
   font-size: 0.88rem;
 }
 
-.landing-nav-cta:hover,
-.button:hover {
+.landing-page .landing-nav-cta:visited {
+  color: #fff;
+}
+
+.landing-page .landing-nav-cta:hover,
+.landing-page .button:hover {
   transform: scale(1.035);
 }
 
@@ -301,20 +305,20 @@
   margin-top: 2rem;
 }
 
-.button {
+.landing-page .button {
   min-height: 54px;
   padding: 0.95rem 1.35rem;
   border: 0;
   cursor: pointer;
 }
 
-.button-primary {
+.landing-page .button-primary {
   background: var(--landing-coral);
   color: var(--landing-dark);
   box-shadow: 0 14px 28px -18px rgba(255, 103, 96, 0.9), var(--landing-shadow);
 }
 
-.button-secondary {
+.landing-page .button-secondary {
   background: rgba(255, 255, 255, 0.86);
   color: var(--landing-dark);
   box-shadow: inset 0 0 0 1px var(--landing-stone), var(--landing-shadow);
@@ -425,7 +429,7 @@
   background: linear-gradient(180deg, #fff, #f9f7f2);
 }
 
-.console-header {
+.preview-console-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -435,13 +439,13 @@
   font-weight: 700;
 }
 
-.status-dot {
+.preview-status-pill {
   position: relative;
   padding-left: 0.9rem;
   color: #66806a;
 }
 
-.status-dot::before {
+.preview-status-pill::before {
   content: '';
   position: absolute;
   left: 0;
@@ -453,7 +457,7 @@
   transform: translateY(-50%);
 }
 
-.console-output {
+.preview-console-output {
   display: grid;
   align-content: center;
   flex: 1;
@@ -464,11 +468,11 @@
   line-height: 1.8;
 }
 
-.console-output p {
+.preview-console-output p {
   margin: 0;
 }
 
-.console-output p:last-child {
+.preview-console-output p:last-child {
   color: var(--landing-muted);
 }
 
@@ -1141,7 +1145,7 @@
     width: auto;
   }
 
-  .button {
+  .landing-page .button {
     min-width: 180px;
   }
 

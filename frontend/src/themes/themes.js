@@ -4,6 +4,86 @@
 ═══════════════════════════════════════════════════ */
 
 export const THEMES = {
+  'soft-focus': {
+    id: 'soft-focus',
+    label: 'Soft Focus',
+    monacoTheme: 'compilex-soft-focus',
+
+    vars: {
+      '--primary':       '#ffb7b2',
+      '--bg':            '#fdfcf8',
+      '--surface':       '#ffffff',
+      '--surface-2':     '#f6f3ee',
+      '--surface-3':     '#e8efe8',
+      '--surface-glass': 'rgba(255, 255, 255, 0.72)',
+      '--glass-blur':    'blur(20px)',
+
+      '--text-primary':   '#292524',
+      '--text-secondary': '#57534e',
+      '--text-muted':     '#78716c',
+
+      '--accent':       '#ff9f98',
+      '--accent-light':  '#d97974',
+      '--accent-dim':    'rgba(255, 183, 178, 0.28)',
+      '--teal':          '#66806a',
+      '--teal-dim':      'rgba(232, 239, 232, 0.88)',
+
+      '--border':       'rgba(120, 113, 108, 0.14)',
+      '--border-hover':  'rgba(255, 183, 178, 0.7)',
+
+      '--status-bar-bg': '#ffffff',
+      '--status-bar-text': '#78716c',
+
+      '--run-btn-bg':    '#292524',
+      '--run-btn-shadow': 'rgba(41, 37, 36, 0.12)',
+      '--run-btn-hover-shadow': 'rgba(41, 37, 36, 0.2)',
+      '--run-btn-active-bg': '#1c1917',
+    },
+
+    monaco: {
+      base: 'vs',
+      inherit: true,
+      rules: [
+        { token: 'comment',    foreground: '9a8f88', fontStyle: 'italic' },
+        { token: 'keyword',    foreground: 'b55f5a', fontStyle: 'bold' },
+        { token: 'string',     foreground: '66806a' },
+        { token: 'number',     foreground: '7f78a7' },
+        { token: 'type',       foreground: '8a6f4d' },
+        { token: 'function',   foreground: '7f78a7' },
+        { token: 'variable',   foreground: '292524' },
+        { token: 'operator',   foreground: '78716c' },
+        { token: 'delimiter',  foreground: '78716c' },
+        { token: 'identifier', foreground: '292524' },
+        { token: 'tag',        foreground: 'b55f5a' },
+        { token: 'attribute.name', foreground: '7f78a7' },
+        { token: 'attribute.value', foreground: '66806a' },
+      ],
+      colors: {
+        'editor.background':                '#ffffff',
+        'editor.foreground':                '#292524',
+        'editor.lineHighlightBackground':   '#f6f3ee',
+        'editor.selectionBackground':       '#ffb7b244',
+        'editor.inactiveSelectionBackground': '#efedf455',
+        'editorLineNumber.foreground':      '#b9b1aa',
+        'editorLineNumber.activeForeground': '#d97974',
+        'editorCursor.foreground':          '#d97974',
+        'editorGutter.background':          '#ffffff',
+        'editorWidget.background':          '#ffffff',
+        'editorWidget.border':              '#e7e5e4',
+        'editorSuggestWidget.background':   '#ffffff',
+        'editorSuggestWidget.border':       '#e7e5e4',
+        'editorSuggestWidget.selectedBackground': '#e8efe8',
+        'input.background':                '#f6f3ee',
+        'focusBorder':                      '#ffb7b2',
+        'scrollbarSlider.background':       '#d6d3d166',
+        'scrollbarSlider.hoverBackground':  '#ffb7b266',
+        'scrollbarSlider.activeBackground': '#ffb7b299',
+        'editorBracketMatch.background':    '#e8efe8',
+        'editorBracketMatch.border':        '#ffb7b2',
+      },
+    },
+  },
+
   'warm-dark': {
     id: 'warm-dark',
     label: '🔥 Warm Dark',
@@ -169,7 +249,7 @@ export const THEMES = {
   },
 };
 
-export const DEFAULT_THEME = 'warm-dark';
+export const DEFAULT_THEME = 'soft-focus';
 export const THEME_STORAGE_KEY = 'compilex-theme';
 
 /** Get theme object by id */
