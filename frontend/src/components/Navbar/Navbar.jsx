@@ -70,7 +70,7 @@ export default function Navbar({
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const isEditorPage = location.pathname === '/';
+  const isEditorPage = location.pathname === '/compiler';
 
   return (
     <nav className="navbar">

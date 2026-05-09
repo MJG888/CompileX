@@ -9,6 +9,7 @@ import StatusBar from './components/StatusBar/StatusBar';
 import Login from './pages/Auth/Login';
 import Signup from './pages/Auth/Signup';
 import History from './pages/History/History';
+import LandingPage from './pages/Landing/LandingPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LANGUAGES, getLanguageById } from './constants/languages';
 import { useTheme } from './themes/ThemeContext';
@@ -431,7 +432,8 @@ export default function App() {
           }}
         />
         <Routes>
-          <Route path="/" element={<IDE />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/compiler" element={<IDE />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/history" element={<History />} />
