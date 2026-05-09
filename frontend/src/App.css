@@ -87,7 +87,7 @@ body {
 .file-tabs {
   display: flex;
   background: var(--surface);
-  border-bottom: 2px solid var(--border);
+  border-bottom: 1px solid var(--border);
   overflow-x: auto;
   flex-shrink: 0;
   scrollbar-width: none;
@@ -98,21 +98,22 @@ body {
   padding: 8px 16px;
   background: transparent;
   border: none;
-  border-right: 2px solid var(--border);
+  border-bottom: 2px solid transparent;
   color: var(--text-muted);
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
-  font-weight: bold;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
+  transition: color 0.15s, background 0.15s;
   white-space: nowrap;
   flex-shrink: 0;
 }
 .file-tab.active {
-  background: var(--accent);
-  color: #000;
+  background: var(--bg);
+  color: var(--text-primary);
+  border-bottom-color: var(--accent);
 }
 
 .new-file-tab {
@@ -206,14 +207,12 @@ body {
   height: 6px;
   width: 100%;
   cursor: row-resize;
-  border-bottom: 2px solid var(--border);
 }
 
 .panel-divider.horizontal {
   width: 6px;
   height: 100%;
   cursor: col-resize;
-  border-right: 2px solid var(--border);
 }
 
 .panel-divider:hover {

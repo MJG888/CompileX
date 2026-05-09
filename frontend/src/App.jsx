@@ -12,7 +12,6 @@ import History from './pages/History/History';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LANGUAGES, getLanguageById } from './constants/languages';
 import { useTheme } from './themes/ThemeContext';
-import LandingPage from './pages/Landing/LandingPage';
 import { io } from 'socket.io-client';
 import './App.css';
 
@@ -352,14 +351,6 @@ const IDE = () => {
             </div>
           </div>
 
-          <button
-            className={`w-full bg-yellow text-black font-bold py-4 text-xl border-y-2 border-black flex items-center justify-center gap-2 ${isRunning ? 'opacity-70' : ''}`}
-            onClick={handleRun}
-            disabled={isRunning}
-          >
-            {isRunning ? 'RUNNING...' : '▶ RUN CODE'}
-          </button>
-
           <div className="mobile-bottom-section">
             <div className="mobile-tab-bar">
               <button className={`mobile-tab-btn ${mobileTab === 'output' ? 'active' : ''}`} onClick={() => setMobileTab('output')}>Output</button>
@@ -440,8 +431,7 @@ export default function App() {
           }}
         />
         <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/compiler" element={<IDE />} />
+          <Route path="/" element={<IDE />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/history" element={<History />} />

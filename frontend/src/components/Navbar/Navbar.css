@@ -4,8 +4,10 @@
   justify-content: space-between;
   padding: 0 1.25rem;
   height: 56px;
-  background: var(--bg);
-  border-bottom: 2px solid var(--border);
+  background: var(--surface-glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--border);
   z-index: 100;
   flex-shrink: 0;
   flex-wrap: nowrap;
@@ -125,27 +127,21 @@
   gap: 0.3rem;
   height: 34px;
   padding: 0 0.625rem;
-  background: var(--surface);
-  border: 2px solid var(--border);
-  border-radius: 0;
-  box-shadow: 2px 2px 0px 0px #000;
-  color: var(--text-primary);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-secondary);
   cursor: pointer;
   font-size: 0.78rem;
-  font-weight: bold;
+  font-weight: 500;
   font-family: inherit;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  transition: all 0.15s ease;
 }
 
 .btn-icon:hover {
-  background: var(--surface-2);
-  transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0px 0px #000;
-}
-
-.btn-icon:active {
-  transform: translate(2px, 2px);
-  box-shadow: 0px 0px 0px 0px #000;
+  background: var(--surface-3);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
 }
 
 .btn-ai {
@@ -409,29 +405,27 @@
   gap: 0.5rem;
   height: 36px;
   padding: 0 1.25rem;
-  background: var(--primary);
-  border: 2px solid #000;
-  border-radius: 0;
-  color: #000;
+  background: var(--run-btn-bg);
+  border: none;
+  border-radius: 18px;
+  color: #fff;
   font-size: 0.85rem;
-  font-weight: 800;
+  font-weight: 700;
   font-family: inherit;
   cursor: pointer;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-  box-shadow: 4px 4px 0px 0px #000;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px var(--run-btn-shadow);
   position: relative;
   overflow: hidden;
 }
 
 .btn-run:hover:not(:disabled) {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0px 0px #000;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--run-btn-hover-shadow);
+  filter: brightness(1.1);
 }
 
-.btn-run:active { 
-  transform: translate(4px, 4px);
-  box-shadow: 0px 0px 0px 0px #000;
-}
+.btn-run:active { transform: translateY(0); }
 
 .btn-run:disabled {
   opacity: 0.6;
