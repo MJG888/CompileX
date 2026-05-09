@@ -36,9 +36,20 @@ const initialFiles = LANGUAGES.reduce((acc, lang) => {
 const IDE = () => {
   const { themeName } = useTheme();
   const { user } = useAuth();
-  const [selectedLanguage, setSelectedLanguage] = useState('python');
-  const [filesByLang, setFilesByLang] = useState(initialFiles);
-  const [activeFileName, setActiveFileName] = useState('main.py');
+  const [selectedLanguage, setSelectedLanguage] = useState(() => localStorage.getItem('compilex_lang') || 'python');
+  const [filesByLang, setFilesByLang] = useState(() => {
+    const saved = localStorage.getItem('compilex_files');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return initialFiles;
+  });
+  const [activeFileName, setActiveFileName] = useState(() => localStorage.getItem('compilex_active_file') || 'main.py');
+
+  // Persist state changes
+  useEffect(() => { localStorage.setItem('compilex_lang', selectedLanguage); }, [selectedLanguage]);
+  useEffect(() => { localStorage.setItem('compilex_files', JSON.stringify(filesByLang)); }, [filesByLang]);
+  useEffect(() => { localStorage.setItem('compilex_active_file', activeFileName); }, [activeFileName]);
   const [terminalData, setTerminalData] = useState([]);
   const [result, setResult] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
