@@ -5,6 +5,7 @@ import { useTheme } from '../../themes/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { getThemeList } from '../../themes/themes';
 import { HiOutlineUserCircle, HiOutlineLogout, HiOutlineClock, HiOutlineChevronDown, HiOutlineDotsVertical, HiOutlineShare, HiOutlineSparkles } from 'react-icons/hi';
+import { Zap } from 'lucide-react';
 import './Navbar.css';
 
 const RunIcon = () => (
@@ -36,6 +37,7 @@ export default function Navbar({
   aiPanelOpen,
   version,
   backendConnected,
+  isLanding,
 }) {
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
@@ -70,7 +72,30 @@ export default function Navbar({
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const isEditorPage = location.pathname === '/';
+  const isEditorPage = location.pathname === '/compiler';
+
+  if (isLanding) {
+    return (
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-yellow border-b-2 border-black brutal-shadow px-6 py-4 flex justify-between items-center text-black">
+        <Link to="/" className="font-heading text-2xl font-black uppercase tracking-tight flex items-center gap-2">
+          CompileX <Zap className="w-6 h-6" />
+        </Link>
+        <div className="hidden md:flex items-center gap-8 font-bold">
+          <a href="#features" className="hover:underline">Features</a>
+          <a href="#" className="hover:underline">Docs</a>
+          <a href="#" className="hover:underline">GitHub</a>
+          {user ? (
+            <Link to="/compiler" className="hover:underline">{user.name}</Link>
+          ) : (
+            <Link to="/login" className="hover:underline">Login</Link>
+          )}
+        </div>
+        <Link to="/compiler" className="bg-black text-yellow px-6 py-2 font-bold brutal-border brutal-hover hover:bg-[#272727] whitespace-nowrap">
+          Launch Compiler
+        </Link>
+      </nav>
+    );
+  }
 
   return (
     <nav className="navbar">

@@ -13,9 +13,8 @@
   justify-content: space-between;
   padding: 0 0.75rem;
   height: 40px;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface-glass);
-  backdrop-filter: blur(10px);
+  border-bottom: 2px solid var(--border);
+  background: var(--bg);
   flex-shrink: 0;
   gap: 0.5rem;
 }
@@ -165,8 +164,16 @@
 }
 
 .error-output {
-  color: #f87171;
-  background: rgba(239, 68, 68, 0.04);
+  color: #ef4444;
+  background: #2b1111;
+  border: 2px solid #ef4444;
+  animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
 }
 
 /* ─── States ─── */
