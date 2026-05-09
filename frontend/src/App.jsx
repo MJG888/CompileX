@@ -207,10 +207,18 @@ const IDE = () => {
     setTerminalData([]);
     if (isMobile) setMobileTab('output');
 
+    // ─── CRITICAL FIX: Bypass React state lag ───
+    // Forcefully pull the absolute latest code directly from Monaco
+    let currentCode = activeLangFiles.find(f => f.name === activeFileName)?.content || '';
+    if (window.monacoEditor) {
+      currentCode = window.monacoEditor.getValue();
+      setCode(currentCode); // Sync state immediately
+    }
+
     const encode = (str) => btoa(unescape(encodeURIComponent(str)));
     const encodedFiles = activeLangFiles.map(f => ({
       name: f.name,
-      content: encode(f.content),
+      content: encode(f.name === activeFileName ? currentCode : f.content),
     }));
 
     const lang = getLanguageById(selectedLanguage);
@@ -220,7 +228,7 @@ const IDE = () => {
       language_id: lang.judge0Id,
       stdin: encode(stdin || ''),
     });
-  }, [activeLangFiles, activeFileName, selectedLanguage, isRunning, stdin]);
+  }, [activeLangFiles, activeFileName, selectedLanguage, isRunning, stdin, isMobile, setCode]);
 
   const handleStop = useCallback(() => {
     socket.emit('stop');
