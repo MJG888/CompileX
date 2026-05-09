@@ -55,32 +55,6 @@ body {
   position: relative;
 }
 
-.app[data-theme="soft-focus"] {
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background:
-    radial-gradient(circle at 8% 10%, rgba(255, 228, 225, 0.74), transparent 30rem),
-    radial-gradient(circle at 95% 20%, rgba(230, 230, 250, 0.68), transparent 30rem),
-    radial-gradient(circle at 45% 100%, rgba(232, 239, 232, 0.72), transparent 34rem),
-    var(--bg);
-}
-
-.app[data-theme="soft-focus"]::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.18;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23noise)' opacity='0.28'/%3E%3C/svg%3E");
-  background-size: 180px 180px;
-  mix-blend-mode: multiply;
-}
-
-.app[data-theme="soft-focus"] > * {
-  position: relative;
-  z-index: 1;
-}
-
 .app-body {
   display: flex;
   flex: 1;
@@ -88,11 +62,6 @@ body {
   min-height: 0;
   min-width: 0;
   position: relative;
-}
-
-.app[data-theme="soft-focus"] .app-body {
-  gap: 10px;
-  padding: 0 12px 12px;
 }
 
 /* CRITICAL: Disable transitions during resize to prevent lag */
@@ -114,13 +83,6 @@ body {
   position: relative;
 }
 
-.app[data-theme="soft-focus"] .editor-area,
-.app[data-theme="soft-focus"] .ai-panel-wrapper.open {
-  border-radius: 1.6rem;
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
-}
-
 /* ─── File Tabs ─── */
 .file-tabs {
   display: flex;
@@ -131,13 +93,6 @@ body {
   scrollbar-width: none;
 }
 .file-tabs::-webkit-scrollbar { display: none; }
-
-.app[data-theme="soft-focus"] .file-tabs {
-  gap: 4px;
-  padding: 6px;
-  border-bottom: 0;
-  background: rgba(255, 255, 255, 0.72);
-}
 
 .file-tab {
   padding: 8px 16px;
@@ -154,19 +109,6 @@ body {
   transition: color 0.15s, background 0.15s;
   white-space: nowrap;
   flex-shrink: 0;
-}
-
-.app[data-theme="soft-focus"] .file-tab {
-  border-bottom: 0;
-  border-radius: 999px;
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-weight: 700;
-}
-
-.app[data-theme="soft-focus"] .file-tab.active {
-  background: var(--surface-2);
-  color: var(--text-primary);
-  box-shadow: inset 0 0 0 1px rgba(120, 113, 108, 0.08);
 }
 .file-tab.active {
   background: var(--bg);
@@ -225,11 +167,6 @@ body {
   transition: color 0.15s;
   flex-shrink: 0;
 }
-
-.app[data-theme="soft-focus"] .add-file-btn {
-  margin: 2px 0;
-  border-radius: 999px;
-}
 .add-file-btn:hover {
   color: var(--accent);
 }
@@ -254,11 +191,6 @@ body {
   overflow: hidden;
 }
 
-.app[data-theme="soft-focus"] .editor-pane,
-.app[data-theme="soft-focus"] .console-pane {
-  background: var(--surface);
-}
-
 /* ─── Draggable Dividers ─── */
 .panel-divider {
   background: var(--border);
@@ -275,18 +207,6 @@ body {
   height: 6px;
   width: 100%;
   cursor: row-resize;
-}
-
-.app[data-theme="soft-focus"] .panel-divider {
-  background: transparent;
-}
-
-.app[data-theme="soft-focus"] .panel-divider.vertical {
-  height: 10px;
-}
-
-.app[data-theme="soft-focus"] .panel-divider.horizontal {
-  width: 10px;
 }
 
 .panel-divider.horizontal {
@@ -455,14 +375,6 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-}
-
-.app[data-theme="soft-focus"] .mobile-content {
-  margin: 0 10px 10px;
-  overflow: hidden;
-  border-radius: 1.5rem;
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
 }
 
 /* ─── Mobile Editor Section (Top 60%) ─── */

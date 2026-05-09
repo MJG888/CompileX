@@ -203,11 +203,11 @@ print(greet("developer"))`}</code>
           </pre>
         </div>
         <div className="preview-console">
-          <div className="preview-console-header">
+          <div className="console-header">
             <span>Output</span>
-            <span className="preview-status-pill">success</span>
+            <span className="status-dot">success</span>
           </div>
-          <div className="preview-console-output">
+          <div className="console-output">
             <p>Hello developer, stay calm.</p>
             <p>Process finished in 0.12s</p>
           </div>
@@ -301,14 +301,6 @@ export default function LandingPage() {
 
   useRevealOnScroll();
 
-  const setCompilerTheme = () => {
-    try {
-      localStorage.setItem('compilex-theme', 'soft-focus');
-    } catch {
-      // Ignore storage failures in restricted browsers.
-    }
-  };
-
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!email.trim()) return;
@@ -331,7 +323,7 @@ export default function LandingPage() {
             </a>
           ))}
         </div>
-        <Link className="landing-nav-cta" to="/compiler" onClick={setCompilerTheme}>
+        <Link className="landing-nav-cta" to="/compiler">
           Start Coding
         </Link>
       </nav>
@@ -350,7 +342,7 @@ export default function LandingPage() {
             distraction-free learning.
           </p>
           <div className="hero-actions">
-            <Link className="button button-primary" to="/compiler" onClick={setCompilerTheme}>
+            <Link className="button button-primary" to="/compiler">
               <HiOutlineTerminal />
               Launch Compiler
             </Link>

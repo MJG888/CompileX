@@ -5,8 +5,6 @@ import { motion } from 'framer-motion';
 import { HiOutlineUser, HiOutlineMail, HiOutlineLockClosed, HiOutlineEye, HiOutlineEyeOff } from 'react-icons/hi';
 import './Auth.css';
 
-const MotionDiv = motion.div;
-
 const Signup = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -37,7 +35,7 @@ const Signup = () => {
         setIsSubmitting(false);
 
         if (result.success) {
-            navigate('/compiler');
+            navigate('/');
         } else {
             setFormError(result.error || 'Signup failed');
         }
@@ -47,7 +45,7 @@ const Signup = () => {
 
     return (
         <div className="auth-container">
-            <MotionDiv
+            <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
@@ -97,7 +95,7 @@ const Signup = () => {
                             <HiOutlineLockClosed className="input-icon" />
                             <input 
                                 type={showPassword ? "text" : "password"} 
-                                placeholder="Password"
+                                placeholder="••••••••"
                                 value={password}
                                 onChange={(e) => { setPassword(e.target.value); clearError(); }}
                                 className={formError ? 'input-error' : ''}
@@ -134,7 +132,7 @@ const Signup = () => {
                 <div className="auth-footer">
                     <p>Already have an account? <Link to="/login">Login</Link></p>
                 </div>
-            </MotionDiv>
+            </motion.div>
         </div>
     );
 };
