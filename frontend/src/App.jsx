@@ -114,9 +114,15 @@ const IDE = () => {
   const latestLang = useRef(selectedLanguage);
   const latestStdin = useRef(stdin);
 
+  // ─── Exact Execution State Cache ───
+  const executingFiles = useRef(null);
+  const executingLang = useRef(null);
+  const executingStdin = useRef(null);
+
   useEffect(() => { latestFiles.current = filesByLang; }, [filesByLang]);
   useEffect(() => { latestLang.current = selectedLanguage; }, [selectedLanguage]);
   useEffect(() => { latestStdin.current = stdin; }, [stdin]);
+
 
   // ─── Backend & Health Logic ───
   const checkHealth = useCallback(async () => {
@@ -161,9 +167,9 @@ const IDE = () => {
       if (user) {
         try {
           await axios.post(`${BACKEND_URL}/history`, {
-            language: latestLang.current,
-            files: latestFiles.current[latestLang.current],
-            stdin: latestStdin.current,
+            language: executingLang.current || latestLang.current,
+            files: executingFiles.current || latestFiles.current[latestLang.current],
+            stdin: executingStdin.current || latestStdin.current,
             output: {
               stdout: data.stdout || '',
               stderr: data.stderr || '',
@@ -215,10 +221,19 @@ const IDE = () => {
       setCode(currentCode); // Sync state immediately
     }
 
-    const encode = (str) => btoa(unescape(encodeURIComponent(str)));
-    const encodedFiles = activeLangFiles.map(f => ({
+    // ─── Exact Cache for History Save ───
+    const exactFilesToRun = activeLangFiles.map(f => ({
       name: f.name,
-      content: encode(f.name === activeFileName ? currentCode : f.content),
+      content: f.name === activeFileName ? currentCode : f.content
+    }));
+    executingFiles.current = exactFilesToRun;
+    executingLang.current = selectedLanguage;
+    executingStdin.current = stdin;
+
+    const encode = (str) => btoa(unescape(encodeURIComponent(str)));
+    const encodedFiles = exactFilesToRun.map(f => ({
+      name: f.name,
+      content: encode(f.content),
     }));
 
     const lang = getLanguageById(selectedLanguage);
