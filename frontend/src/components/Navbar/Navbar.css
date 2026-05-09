@@ -110,12 +110,7 @@
 }
 
 /* ─── Actions ─── */
-.desktop-only-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-shrink: 0;
-}
+
 
 .navbar-actions {
   display: flex;
@@ -438,6 +433,18 @@
   filter: grayscale(0.5);
 }
 
+/* ─── Desktop vs Mobile Visibility ─── */
+.desktop-only-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.mobile-only-actions {
+  display: none;
+}
+
 /* ─── Mobile Navbar Overhaul ─── */
 @media (max-width: 768px) {
   .navbar {
@@ -463,6 +470,15 @@
   .btn-run { 
     padding: 0 1rem; 
     font-size: 0.8rem;
+  }
+
+  .desktop-only-actions {
+    display: none;
+  }
+  
+  .mobile-only-actions {
+    display: flex;
+    position: relative;
   }
 }
 
