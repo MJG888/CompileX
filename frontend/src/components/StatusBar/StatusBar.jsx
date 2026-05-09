@@ -5,35 +5,26 @@ export default function StatusBar({ selectedLanguage, linesCount, charCount, con
   return (
     <div className="status-bar">
       <div className="status-left">
-        {connected === false && (
-          <span className="status-item offline-badge" title="Backend server not connected">
-            <span className="offline-dot" />
-            Offline
-          </span>
-        )}
-        {connected === true && (
-          <span className="status-item connected-badge">
-            <span className="connected-dot" />
-            Connected
-          </span>
-        )}
-        <span className="status-item">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polyline points="4 17 10 11 4 5" />
-            <line x1="12" y1="19" x2="20" y2="19" />
+        <div className={`status-item connection-status ${connected ? 'connected' : 'offline'}`}>
+          <span className="indicator-dot" />
+          <span className="indicator-text">{connected ? 'Connected' : 'Offline'}</span>
+        </div>
+        <div className="status-divider" />
+        <span className="status-item brand">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <polyline points="4 17 10 11 4 5" /><line x1="12" y1="19" x2="20" y2="19" />
           </svg>
-          CompileX IDE
+          CompileX
         </span>
       </div>
 
       <div className="status-right">
         <span className="status-item">Ln {linesCount}</span>
-        <span className="status-separator" />
-        <span className="status-item">{charCount} chars</span>
-        <span className="status-separator" />
-        <span className="status-item">UTF-8</span>
-        <span className="status-separator" />
-        <span className="status-item lang-badge">{selectedLanguage?.toUpperCase()}</span>
+        <span className="status-item">Ch {charCount}</span>
+        <div className="status-divider" />
+        <span className="status-item encoding">UTF-8</span>
+        <div className="status-divider" />
+        <span className="status-item language">{selectedLanguage?.toUpperCase()}</span>
       </div>
     </div>
   );

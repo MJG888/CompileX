@@ -81,61 +81,38 @@ const History = () => {
         <div className="history-container">
             <div className="history-content">
                 <header className="history-header">
-                    <h1>Execution History</h1>
-                    <p>Track and manage your past code executions</p>
+                    <div className="header-top">
+                        <div className="header-text">
+                            <h1>Code History</h1>
+                            <p>Manage and restore your past executions</p>
+                        </div>
+                        <button className="refresh-btn" onClick={fetchHistory} title="Refresh History">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                            </svg>
+                        </button>
+                    </div>
                     
-                    <div style={{ display: 'flex', gap: '16px', marginTop: '32px', flexWrap: 'wrap' }}>
-                        <div style={{ 
-                            flex: 1, 
-                            minWidth: '200px', 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            background: 'rgba(30, 41, 59, 0.6)', 
-                            borderRadius: '12px', 
-                            padding: '0 16px',
-                            border: '1px solid rgba(255,255,255,0.1)'
-                        }}>
-                            <HiOutlineSearch color="rgba(255,255,255,0.4)" />
+                    <div className="history-controls">
+                        <div className="search-box">
+                            <HiOutlineSearch className="control-icon" />
                             <input 
                                 type="text" 
-                                placeholder="Search code or language..." 
+                                placeholder="Search by code or language..." 
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                style={{ 
-                                    background: 'none', 
-                                    border: 'none', 
-                                    color: '#fff', 
-                                    padding: '12px', 
-                                    width: '100%',
-                                    outline: 'none'
-                                }}
                             />
                         </div>
                         
-                        <div style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            background: 'rgba(30, 41, 59, 0.6)', 
-                            borderRadius: '12px', 
-                            padding: '0 16px',
-                            border: '1px solid rgba(255,255,255,0.1)'
-                        }}>
-                            <HiOutlineFilter color="rgba(255,255,255,0.4)" style={{ marginRight: '8px' }} />
+                        <div className="filter-box">
+                            <HiOutlineFilter className="control-icon" />
                             <select 
                                 value={filterLang} 
                                 onChange={(e) => setFilterLang(e.target.value)}
-                                style={{ 
-                                    background: 'none', 
-                                    border: 'none', 
-                                    color: '#fff', 
-                                    padding: '12px 0',
-                                    outline: 'none',
-                                    cursor: 'pointer'
-                                }}
                             >
                                 {languages.map(lang => (
-                                    <option key={lang} value={lang} style={{ background: '#1e293b' }}>
-                                        {lang.charAt(0).toUpperCase() + lang.slice(1)}
+                                    <option key={lang} value={lang}>
+                                        {lang === 'all' ? 'All Languages' : lang.charAt(0).toUpperCase() + lang.slice(1)}
                                     </option>
                                 ))}
                             </select>
@@ -145,9 +122,12 @@ const History = () => {
 
                 {filteredHistory.length === 0 ? (
                     <div className="empty-history">
-                        <HiOutlineCode size={48} color="rgba(99, 102, 241, 0.5)" style={{ marginBottom: '16px' }} />
-                        <h2>No history found</h2>
-                        <p>Your executed code will appear here once you run them.</p>
+                        <div className="empty-icon-wrapper">
+                            <HiOutlineCode />
+                        </div>
+                        <h2>No history entries found</h2>
+                        <p>Your executed code snippets will appear here once you run them in the IDE.</p>
+                        <button className="goto-ide-btn" onClick={() => navigate('/')}>Start Coding</button>
                     </div>
                 ) : (
                     <div className="history-grid">
@@ -174,27 +154,30 @@ const History = () => {
                                     </div>
 
                                     <div className="item-footer">
-                                        <div className="execution-time">
-                                            <HiOutlineCalendar style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                                            {new Date(item.timestamp).toLocaleDateString()} • {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                        </div>
-                                        
-                                        <div style={{ display: 'flex', gap: '12px' }}>
-                                            <button 
-                                                onClick={(e) => handleDelete(e, item._id)} 
-                                                style={{ background: 'none', border: 'none', color: 'rgba(239, 68, 68, 0.6)', cursor: 'pointer' }}
-                                                title="Delete"
-                                            >
-                                                <HiOutlineTrash size={18} />
-                                            </button>
-                                            <button 
-                                                className="view-btn"
-                                                onClick={() => handleOpen(item)}
-                                            >
-                                                View <HiOutlineExternalLink />
-                                            </button>
-                                        </div>
-                                    </div>
+                                         <div className="execution-time">
+                                             <HiOutlineCalendar className="footer-icon" />
+                                             <span>
+                                                 {new Date(item.timestamp).toLocaleDateString()} • {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                             </span>
+                                         </div>
+                                         
+                                         <div className="item-actions">
+                                             <button 
+                                                 className="delete-btn"
+                                                 onClick={(e) => handleDelete(e, item._id)} 
+                                                 title="Delete from history"
+                                             >
+                                                 <HiOutlineTrash size={18} />
+                                             </button>
+                                             <button 
+                                                 className="view-btn"
+                                                 onClick={() => handleOpen(item)}
+                                             >
+                                                 <span>Restore</span>
+                                                 <HiOutlineExternalLink />
+                                             </button>
+                                         </div>
+                                     </div>
                                 </motion.div>
                             ))}
                         </AnimatePresence>

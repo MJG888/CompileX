@@ -40,6 +40,13 @@ export function ThemeProvider({ children }) {
   // Apply theme to DOM whenever it changes
   useEffect(() => {
     applyThemeToDOM(theme);
+    
+    // Also set a transition for smoother switching
+    document.documentElement.style.setProperty('transition', 'background 0.3s ease, color 0.3s ease');
+    const timer = setTimeout(() => {
+      document.documentElement.style.setProperty('transition', 'none');
+    }, 500);
+    return () => clearTimeout(timer);
   }, [theme]);
 
   // Persist to localStorage

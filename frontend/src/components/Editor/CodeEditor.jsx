@@ -91,7 +91,7 @@ export default function CodeEditor({ value, language, themeName, onChange }) {
 
   // Update theme reactively
   useEffect(() => {
-    if (monacoRef.current) {
+    if (monacoRef.current && currentTheme) {
       monacoRef.current.editor.setTheme(currentTheme);
     }
   }, [currentTheme]);

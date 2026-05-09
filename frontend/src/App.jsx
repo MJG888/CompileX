@@ -17,7 +17,6 @@ import './App.css';
 
 const AIPanel = lazy(() => import('./components/AIPanel/AIPanel'));
 
-const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000').replace(/\/$/, '');
 const socket = io(BACKEND_URL, {
   autoConnect: false,
@@ -54,6 +53,7 @@ const IDE = () => {
   const [isResizing, setIsResizing] = useState(false);
   const [isAddingFile, setIsAddingFile] = useState(false);
   const [newFileName, setNewFileName] = useState('');
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
   
   const isDraggingVertical = useRef(false);
   const isDraggingHorizontal = useRef(false);
@@ -62,6 +62,12 @@ const IDE = () => {
   const containerRef = useRef(null);
   const newFileInputRef = useRef(null);
   const APP_VERSION = '2.1.0';
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const activeLangFiles = filesByLang[selectedLanguage] || [];
   const activeFile = activeLangFiles.find(f => f.name === activeFileName) || activeLangFiles[0];
@@ -112,9 +118,31 @@ const IDE = () => {
   useEffect(() => { latestLang.current = selectedLanguage; }, [selectedLanguage]);
   useEffect(() => { latestStdin.current = stdin; }, [stdin]);
 
+  // ─── Backend & Health Logic ───
+  const checkHealth = useCallback(async () => {
+    try {
+      const res = await axios.get(BACKEND_URL, { timeout: 3000 });
+      if (res.data.status === 'ok') {
+        setBackendConnected(true);
+        return true;
+      }
+    } catch (err) {
+      // If websocket is connected but HTTP fails, still show as semi-connected?
+      // For now, if HTTP fails, we consider it offline or degraded.
+      if (!socket.connected) setBackendConnected(false);
+    }
+    return false;
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(checkHealth, 10000);
+    checkHealth();
+    return () => clearInterval(interval);
+  }, [checkHealth]);
+
   // ─── WebSocket Setup ───
   useEffect(() => {
-    socket.connect();
+    if (!socket.connected) socket.connect();
     
     const onConnect = () => setBackendConnected(true);
     const onDisconnect = () => setBackendConnected(false);
@@ -129,7 +157,8 @@ const IDE = () => {
       setIsInteractive(false);
       setResult(data);
 
-      if (user && data.status?.id === 3) {
+      // Save to history if logged in
+      if (user) {
         try {
           await axios.post(`${BACKEND_URL}/history`, {
             language: latestLang.current,
@@ -149,12 +178,26 @@ const IDE = () => {
           console.error('History Save Error:', err);
         }
       }
-      socket.off('compilation_complete');
-      socket.off('terminal_output');
-      socket.off('terminal_error');
-      socket.off('execution_complete');
     };
-  }, [user, selectedLanguage, activeLangFiles, stdin]);
+
+    socket.on('connect', onConnect);
+    socket.on('disconnect', onDisconnect);
+    socket.on('compilation_start', onCompStart);
+    socket.on('compilation_complete', onCompComplete);
+    socket.on('terminal_output', onTermOutput);
+    socket.on('terminal_error', onTermError);
+    socket.on('execution_complete', onExecComplete);
+    
+    return () => {
+      socket.off('connect', onConnect);
+      socket.off('disconnect', onDisconnect);
+      socket.off('compilation_start', onCompStart);
+      socket.off('compilation_complete', onCompComplete);
+      socket.off('terminal_output', onTermOutput);
+      socket.off('terminal_error', onTermError);
+      socket.on('execution_complete', onExecComplete);
+    };
+  }, [user]); // Only re-bind if user changes (needed for history save logic)
 
   const handleRun = useCallback(() => {
     if (isRunning) return;
@@ -179,8 +222,15 @@ const IDE = () => {
     });
   }, [activeLangFiles, activeFileName, selectedLanguage, isRunning, stdin]);
 
-  const handleStop = useCallback(() => socket.emit('stop'), []);
+  const handleStop = useCallback(() => {
+    socket.emit('stop');
+    setIsRunning(false);
+    setIsCompiling(false);
+    setIsInteractive(false);
+  }, []);
+
   const handleTerminalInput = useCallback((text) => {
+    if (!text.trim()) return;
     socket.emit('input', text);
     setTerminalData(prev => [...prev, { type: 'input', text: text + '\n' }]);
   }, []);

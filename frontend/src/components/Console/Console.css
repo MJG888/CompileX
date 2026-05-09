@@ -293,10 +293,46 @@
 @media (max-width: 768px) {
   .console-header {
     padding: 0 0.5rem;
-    height: 38px;
+    height: 44px; /* Slightly taller for touch */
+    gap: 4px;
+  }
+  .console-tabs {
+    gap: 0;
+    flex: 1;
+    min-width: 0;
   }
   .console-tab {
-    font-size: 0.7rem;
-    padding: 0 0.5rem;
+    font-size: 0.725rem;
+    padding: 0 0.4rem;
+    height: 32px;
+    flex: 1;
+    justify-content: center;
+    border-radius: 0;
+  }
+  .console-tab.active {
+    background: transparent;
+    color: var(--accent-light);
+  }
+  .console-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 20%; right: 20%; height: 2px;
+    background: var(--accent);
+    border-radius: 2px 2px 0 0;
+  }
+  .console-status {
+    padding: 4px 8px;
+    font-size: 0.65rem;
+  }
+}
+
+/* Extra Small Screens */
+@media (max-width: 480px) {
+  .console-tab span:not(.tab-dot) { display: none; }
+  .console-tab svg { width: 14px; height: 14px; }
+  .console-status span:not(.status-dot):not(.status-spinner) { 
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
