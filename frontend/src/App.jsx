@@ -90,10 +90,10 @@ const IDE = () => {
     const restore = localStorage.getItem('compilex_restore');
     if (restore) {
       try {
-        const { language, files, stdin: oldStdin } = JSON.parse(restore);
+        const { language, files, stdin: oldStdin, activeFileName: restoredActiveFileName, mainFile } = JSON.parse(restore);
         setSelectedLanguage(language);
         setFilesByLang(prev => ({ ...prev, [language]: files }));
-        setActiveFileName(files[0]?.name || '');
+        setActiveFileName(restoredActiveFileName || mainFile || files[0]?.name || '');
         setStdin(oldStdin || '');
         toast.success('Restored code from history');
       } catch (err) {
@@ -105,10 +105,10 @@ const IDE = () => {
 
   useEffect(() => {
     const defaultFiles = filesByLang[selectedLanguage];
-    if (defaultFiles?.length > 0) {
+    if (defaultFiles?.length > 0 && !defaultFiles.some(file => file.name === activeFileName)) {
       setActiveFileName(defaultFiles[0].name);
     }
-  }, [selectedLanguage]);
+  }, [selectedLanguage, filesByLang, activeFileName]);
 
   const setCode = useCallback((newContent) => {
     setFilesByLang(prev => {
@@ -125,15 +125,18 @@ const IDE = () => {
   const latestFiles = useRef(filesByLang);
   const latestLang = useRef(selectedLanguage);
   const latestStdin = useRef(stdin);
+  const latestActiveFileName = useRef(activeFileName);
 
   // ─── Exact Execution State Cache ───
   const executingFiles = useRef(null);
   const executingLang = useRef(null);
   const executingStdin = useRef(null);
+  const executingMainFile = useRef(null);
 
   useEffect(() => { latestFiles.current = filesByLang; }, [filesByLang]);
   useEffect(() => { latestLang.current = selectedLanguage; }, [selectedLanguage]);
   useEffect(() => { latestStdin.current = stdin; }, [stdin]);
+  useEffect(() => { latestActiveFileName.current = activeFileName; }, [activeFileName]);
 
 
   // ─── Backend & Health Logic ───
@@ -180,6 +183,7 @@ const IDE = () => {
         try {
           await axios.post(`${BACKEND_URL}/history`, {
             language: executingLang.current || latestLang.current,
+            mainFile: executingMainFile.current || latestActiveFileName.current,
             files: executingFiles.current || latestFiles.current[latestLang.current],
             stdin: executingStdin.current || latestStdin.current,
             output: {
@@ -227,7 +231,11 @@ const IDE = () => {
 
     // ─── CRITICAL FIX: Bypass React state lag ───
     // Forcefully pull the absolute latest code directly from Monaco
-    let currentCode = activeLangFiles.find(f => f.name === activeFileName)?.content || '';
+    const fileNameToRun = activeLangFiles.some(f => f.name === activeFileName)
+      ? activeFileName
+      : activeFile?.name || activeFileName;
+
+    let currentCode = activeLangFiles.find(f => f.name === fileNameToRun)?.content || '';
     if (window.monacoEditor) {
       currentCode = window.monacoEditor.getValue();
       setCode(currentCode); // Sync state immediately
@@ -236,11 +244,12 @@ const IDE = () => {
     // ─── Exact Cache for History Save ───
     const exactFilesToRun = activeLangFiles.map(f => ({
       name: f.name,
-      content: f.name === activeFileName ? currentCode : f.content
+      content: f.name === fileNameToRun ? currentCode : f.content
     }));
     executingFiles.current = exactFilesToRun;
     executingLang.current = selectedLanguage;
     executingStdin.current = stdin;
+    executingMainFile.current = fileNameToRun;
 
     const encode = (str) => btoa(unescape(encodeURIComponent(str)));
     const encodedFiles = exactFilesToRun.map(f => ({
@@ -251,11 +260,11 @@ const IDE = () => {
     const lang = getLanguageById(selectedLanguage);
     socket.emit('execute', {
       files: encodedFiles,
-      main_file: activeFileName,
+      main_file: fileNameToRun,
       language_id: lang.judge0Id,
       stdin: encode(stdin || ''),
     });
-  }, [activeLangFiles, activeFileName, selectedLanguage, isRunning, stdin, isMobile, setCode]);
+  }, [activeLangFiles, activeFile, activeFileName, selectedLanguage, isRunning, stdin, isMobile, setCode]);
 
   const handleStop = useCallback(() => {
     socket.emit('stop');

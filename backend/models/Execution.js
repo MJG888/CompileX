@@ -11,6 +11,10 @@ const executionSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    mainFile: {
+        type: String,
+        default: ''
+    },
     files: [
         {
             name: String,

@@ -26,11 +26,12 @@ router.get('/', protect, async (req, res) => {
 // @route   POST /history
 router.post('/', protect, async (req, res) => {
     try {
-        const { language, files, stdin, output, status } = req.body;
+        const { language, files, stdin, output, status, mainFile, main_file } = req.body;
 
         const execution = await Execution.create({
             userId: req.user.id,
             language,
+            mainFile: mainFile || main_file || files?.[0]?.name || '',
             files,
             stdin,
             output,
