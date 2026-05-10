@@ -85,10 +85,12 @@
 }
 
 @keyframes blobFloat {
+
   0%,
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(34px);
   }
@@ -194,8 +196,15 @@
 .landing-nav-cta {
   padding: 0.72rem 1.05rem;
   background: var(--landing-dark);
+  background-color: #111;
   color: #fff;
   font-size: 0.88rem;
+}
+
+.landing-page .landing-nav .landing-nav-cta,
+.landing-page .landing-nav .landing-nav-cta:visited,
+.landing-page .landing-nav .landing-nav-cta:hover {
+  color: #fff;
 }
 
 .landing-nav-cta:hover,
@@ -612,10 +621,12 @@
 }
 
 @keyframes cardDrift {
+
   0%,
   100% {
     translate: 0 0;
   }
+
   50% {
     translate: 0 -5px;
   }
@@ -924,7 +935,7 @@
   box-shadow: inset 0 0 0 1px rgba(231, 229, 228, 0.76), var(--landing-shadow);
 }
 
-.faq-item + .faq-item {
+.faq-item+.faq-item {
   border-top: 1px solid rgba(231, 229, 228, 0.72);
 }
 
@@ -1042,7 +1053,7 @@
   box-shadow: var(--landing-shadow);
 }
 
-.waitlist-form > svg {
+.waitlist-form>svg {
   margin-left: 0.8rem;
   color: var(--landing-muted);
 }
@@ -1300,6 +1311,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .ambient-blob,
   .cta-blob,
   .feature-card,
