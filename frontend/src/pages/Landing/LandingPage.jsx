@@ -301,6 +301,14 @@ export default function LandingPage() {
 
   useRevealOnScroll();
 
+  const setCompilerTheme = () => {
+    try {
+      localStorage.setItem('compilex-theme', 'soft-focus');
+    } catch {
+      // Ignore storage failures in restricted browsers.
+    }
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!email.trim()) return;
@@ -323,7 +331,7 @@ export default function LandingPage() {
             </a>
           ))}
         </div>
-        <Link className="landing-nav-cta" to="/compiler">
+        <Link className="landing-nav-cta" to="/compiler" onClick={setCompilerTheme}>
           Start Coding
         </Link>
       </nav>
@@ -342,7 +350,7 @@ export default function LandingPage() {
             distraction-free learning.
           </p>
           <div className="hero-actions">
-            <Link className="button button-primary" to="/compiler">
+            <Link className="button button-primary" to="/compiler" onClick={setCompilerTheme}>
               <HiOutlineTerminal />
               Launch Compiler
             </Link>

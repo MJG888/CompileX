@@ -13,6 +13,17 @@
   border-top: 1px solid var(--border);
 }
 
+.app[data-theme="soft-focus"] .status-bar {
+  height: 30px;
+  margin: 0 12px 10px;
+  border-top: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
 .status-left, .status-right {
   display: flex;
   align-items: center;
@@ -31,6 +42,10 @@
   width: 1px;
   height: 14px;
   background: rgba(255, 255, 255, 0.15);
+}
+
+.app[data-theme="soft-focus"] .status-divider {
+  background: rgba(120, 113, 108, 0.14);
 }
 
 /* Connection Status */
@@ -73,9 +88,16 @@
   border-radius: 4px;
 }
 
+.app[data-theme="soft-focus"] .language {
+  border-radius: 999px;
+  background: #f6f3ee;
+  color: #57534e;
+}
+
 /* Mobile */
 @media (max-width: 768px) {
   .status-bar { height: 22px; font-size: 0.65rem; }
+  .app[data-theme="soft-focus"] .status-bar { height: 24px; margin: 0 10px 8px; }
   .status-divider, .brand, .encoding { display: none; }
   .status-left, .status-right { gap: 0.5rem; }
 }

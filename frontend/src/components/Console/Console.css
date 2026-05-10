@@ -6,6 +6,10 @@
   overflow: hidden;
 }
 
+.app[data-theme="soft-focus"] .console {
+  background: #ffffff;
+}
+
 /* ─── Header ─── */
 .console-header {
   display: flex;
@@ -20,9 +24,19 @@
   gap: 0.5rem;
 }
 
+.app[data-theme="soft-focus"] .console-header {
+  height: 44px;
+  border-bottom: 0;
+  background: rgba(255, 255, 255, 0.72);
+}
+
 .console-tabs {
   display: flex;
   gap: 2px;
+}
+
+.app[data-theme="soft-focus"] .console-tabs {
+  gap: 4px;
 }
 
 .console-tab {
@@ -43,6 +57,13 @@
   transition: all 0.15s ease;
 }
 
+.app[data-theme="soft-focus"] .console-tab {
+  height: 30px;
+  border-radius: 999px;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 700;
+}
+
 .console-tab:hover {
   background: var(--surface-2);
   color: var(--text-secondary);
@@ -51,6 +72,11 @@
 .console-tab.active {
   background: var(--surface-2);
   color: var(--text-primary);
+}
+
+.app[data-theme="soft-focus"] .console-tab.active {
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px rgba(120, 113, 108, 0.08);
 }
 
 .tab-dot {
@@ -75,6 +101,12 @@
   transition: all 0.2s ease;
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+.app[data-theme="soft-focus"] .console-status {
+  background: #f6f3ee;
+  color: var(--text-secondary);
+  font-weight: 700;
 }
 
 .status-dot {
@@ -124,6 +156,10 @@
   font-family: 'JetBrains Mono', 'Consolas', monospace;
 }
 
+.app[data-theme="soft-focus"] .console-content {
+  background: #ffffff;
+}
+
 /* ─── Output ─── */
 .console-output {
   margin: 0;
@@ -140,6 +176,20 @@
 .term-output { white-space: pre-wrap; color: var(--text-secondary); }
 .term-input { white-space: pre-wrap; color: var(--teal); }
 .term-error { white-space: pre-wrap; color: #f87171; }
+
+.app[data-theme="soft-focus"] .term-output {
+  color: #57534e;
+}
+
+.app[data-theme="soft-focus"] .term-input,
+.app[data-theme="soft-focus"] .term-prompt {
+  color: #66806a;
+}
+
+.app[data-theme="soft-focus"] .term-error,
+.app[data-theme="soft-focus"] .error-output {
+  color: #b55f5a;
+}
 
 .terminal-input-row {
   display: flex;
@@ -203,6 +253,12 @@
   color: var(--text-secondary);
 }
 
+.app[data-theme="soft-focus"] .console-placeholder p kbd {
+  border: 0;
+  border-radius: 999px;
+  background: #f6f3ee;
+}
+
 .console-placeholder span {
   font-size: 0.75rem;
 }
@@ -258,6 +314,10 @@
   box-sizing: border-box;
 }
 
+.app[data-theme="soft-focus"] .stdin-textarea {
+  background: #ffffff;
+}
+
 .stdin-textarea::placeholder {
   color: var(--text-muted);
   font-style: italic;
@@ -278,6 +338,14 @@
   font-family: inherit;
   cursor: pointer;
   transition: all 0.15s;
+}
+
+.app[data-theme="soft-focus"] .stop-btn {
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 183, 178, 0.26);
+  color: #b55f5a;
+  font-weight: 700;
 }
 .stop-btn:hover {
   background: rgba(239, 68, 68, 0.2);
