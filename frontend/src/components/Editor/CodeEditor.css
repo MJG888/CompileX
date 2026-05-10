@@ -2,6 +2,7 @@
   height: 100%;
   width: 100%;
   overflow: hidden; /* Let Monaco handle its own scrolling — no double scroll */
+  overscroll-behavior: contain;
   border-radius: 0;
   position: relative;
 }
@@ -9,6 +10,10 @@
 /* Ensure Monaco's internal container doesn't get clipped improperly on mobile */
 .code-editor-wrapper .monaco-editor {
   touch-action: pan-x pan-y; /* Allow scroll gestures to pass through */
+}
+
+.code-editor-wrapper .monaco-scrollable-element {
+  overscroll-behavior: contain;
 }
 
 /* Prevent Monaco view lines from overflowing their container */

@@ -34,6 +34,10 @@ export const THEMES = {
       '--status-bar-bg': 'rgba(255, 255, 255, 0.74)',
       '--status-bar-text': '#78716c',
 
+      '--editor-bg':      '#ffffff',
+      '--editor-fg':      '#292524',
+      '--editor-muted':   '#9a8f88',
+
       '--run-btn-bg':    '#292524',
       '--run-btn-shadow': 'rgba(41, 37, 36, 0.12)',
       '--run-btn-hover-shadow': 'rgba(41, 37, 36, 0.2)',
@@ -114,6 +118,10 @@ export const THEMES = {
 
       '--status-bar-bg': '#1e1a17',
       '--status-bar-text': '#ff771c',
+
+      '--editor-bg':      '#161311',
+      '--editor-fg':      '#f5ede0',
+      '--editor-muted':   '#b8a994',
 
       '--run-btn-bg':    'linear-gradient(135deg, #d4622a, #ff771c)',
       '--run-btn-shadow': 'rgba(255, 119, 28, 0.3)',
@@ -196,6 +204,10 @@ export const THEMES = {
 
       '--status-bar-bg': '#ffffff',
       '--status-bar-text': '#363b6c',
+
+      '--editor-bg':      '#ffffff',
+      '--editor-fg':      '#363b6c',
+      '--editor-muted':   '#5d6199',
 
       '--run-btn-bg':    'linear-gradient(135deg, #4a4f8c, #363b6c)',
       '--run-btn-shadow': 'rgba(54, 59, 108, 0.25)',

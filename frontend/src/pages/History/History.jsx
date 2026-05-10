@@ -11,6 +11,7 @@ import {
     HiOutlineTrash,
 } from 'react-icons/hi';
 import { LANGUAGES } from '../../constants/languages';
+import { useTheme } from '../../themes/ThemeContext';
 import './History.css';
 
 const API_URL = (import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000').replace(/\/$/, '');
@@ -37,6 +38,7 @@ const getPrimaryFile = (item) => {
 };
 
 const History = () => {
+    const { themeName } = useTheme();
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -98,7 +100,7 @@ const History = () => {
 
     if (loading) {
         return (
-            <div className="history-container">
+            <div className="history-container" data-theme={themeName}>
                 <div className="history-content">
                     <div className="loading-history">
                         <div className="spinner" />
@@ -110,7 +112,7 @@ const History = () => {
     }
 
     return (
-        <div className="history-container">
+        <div className="history-container" data-theme={themeName}>
             <div className="history-content">
                 <header className="history-header">
                     <div className="header-top">

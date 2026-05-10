@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useMemo, useCallback } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import MonacoEditor from '@monaco-editor/react';
 import { THEMES } from '../../themes/themes';
 import './CodeEditor.css';
@@ -101,7 +101,7 @@ export default function CodeEditor({ value, language, themeName, onChange }) {
     fontSize: isMobile ? 13 : 14,
     lineHeight: isMobile ? 20 : 22,
     minimap: { enabled: false },
-    scrollBeyondLastLine: true,
+    scrollBeyondLastLine: false,
     automaticLayout: true,
     fixedOverflowWidgets: true,
     fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
@@ -114,10 +114,9 @@ export default function CodeEditor({ value, language, themeName, onChange }) {
     detectIndentation: false,    // Force consistent indentation (don't guess from pasted code)
     tabSize: 4,                  // Consistent tab width globally
 
-    // ─── Word Wrap & Indentation ───
-    // Mobile: OFF — horizontal scroll is cleaner than staircase wrapping
-    // Desktop: ON — nicer UX on wide screens
-    wordWrap: isMobile ? 'off' : 'on',
+    // Word wrap and indentation
+    // Keep source code on real lines so the editor's scrollbars control movement.
+    wordWrap: 'off',
     wrappingIndent: 'none',        // Wrapped lines start at column 0 (no staircase)
     wrappingStrategy: 'advanced',  // Smarter wrap-point decisions
 
@@ -127,12 +126,13 @@ export default function CodeEditor({ value, language, themeName, onChange }) {
     scrollbar: {
       vertical: 'visible',
       horizontal: 'visible',       // Always show horizontal scroll for long lines
+      handleMouseWheel: true,
       useShadows: false,
       verticalScrollbarSize: isMobile ? 4 : 10,
       horizontalScrollbarSize: isMobile ? 4 : 10,
       verticalSliderSize: isMobile ? 4 : 10,
       horizontalSliderSize: isMobile ? 4 : 10,
-      alwaysConsumeMouseWheel: false, // Allow scroll to pass through on mobile
+      alwaysConsumeMouseWheel: true,
     },
 
     // ─── Visual refinements ───
