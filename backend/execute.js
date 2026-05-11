@@ -1,16 +1,123 @@
 import fs from 'fs/promises';
+import fsSync from 'fs';
 import path from 'path';
 import { spawn } from 'child_process';
 import os from 'os';
 
+const windowsToolchainDirs = [
+    'C:\\msys64\\ucrt64\\bin',
+    'C:\\msys64\\mingw64\\bin',
+    'C:\\msys64\\clang64\\bin',
+    'C:\\msys64\\clangarm64\\bin',
+    'C:\\MinGW\\bin',
+    'C:\\mingw64\\bin',
+].filter(dir => {
+    try {
+        return fsSync.existsSync(dir);
+    } catch {
+        return false;
+    }
+});
+
+function resolveCommand(command) {
+    if (os.platform() !== 'win32' || path.isAbsolute(command)) return command;
+
+    const candidates = windowsToolchainDirs.map(dir => path.join(dir, `${command}.exe`));
+    const found = candidates.find(candidate => {
+        try {
+            return fsSync.existsSync(candidate);
+        } catch {
+            return false;
+        }
+    });
+
+    return found || command;
+}
+
+const runtimeCommands = {
+    python: resolveCommand(process.env.PYTHON_CMD || (os.platform() === 'win32' ? 'python' : 'python3')),
+    node: resolveCommand(process.env.NODE_CMD || 'node'),
+    javac: resolveCommand(process.env.JAVAC_CMD || 'javac'),
+    java: resolveCommand(process.env.JAVA_CMD || 'java'),
+    c: resolveCommand(process.env.CC || 'gcc'),
+    cpp: resolveCommand(process.env.CXX || 'g++'),
+};
+
 // Language configuration map — Judge0-compatible IDs
 const langMap = {
-    71: { ext: 'py',   compile: null,   runner: os.platform() === 'win32' ? 'python' : 'python3', args: (f) => ['-u', f] },
-    63: { ext: 'js',   compile: null,   runner: 'node',   args: (f) => [f] },
-    62: { ext: 'java', compile: 'javac', runner: 'java',  args: () => [] },
-    54: { ext: 'cpp',  compile: os.platform() === 'win32' ? 'g++' : 'g++', runner: null, args: () => [] },
-    50: { ext: 'c',    compile: os.platform() === 'win32' ? 'gcc' : 'gcc', runner: null, args: () => [] },
+    71: { ext: 'py',   compile: null,                 runner: runtimeCommands.python, args: (f) => ['-u', f] },
+    63: { ext: 'js',   compile: null,                 runner: runtimeCommands.node,   args: (f) => [f] },
+    62: { ext: 'java', compile: runtimeCommands.javac, runner: runtimeCommands.java,   args: () => [] },
+    54: { ext: 'cpp',  compile: runtimeCommands.cpp,   runner: null,                   args: () => [] },
+    50: { ext: 'c',    compile: runtimeCommands.c,     runner: null,                   args: () => [] },
 };
+
+const missingToolHints = {
+    gcc: {
+        win32: 'Install MSYS2 or MinGW-w64 and add its bin directory to PATH, or run the backend with Docker.',
+        linux: 'Install the C/C++ toolchain on the server. Debian/Ubuntu: apt-get install -y build-essential.',
+        darwin: 'Install Xcode Command Line Tools: xcode-select --install.',
+        default: 'Install gcc and make sure it is available on PATH.',
+    },
+    'g++': {
+        win32: 'Install MSYS2 or MinGW-w64 and add its bin directory to PATH, or run the backend with Docker.',
+        linux: 'Install the C/C++ toolchain on the server. Debian/Ubuntu: apt-get install -y build-essential.',
+        darwin: 'Install Xcode Command Line Tools: xcode-select --install.',
+        default: 'Install g++ and make sure it is available on PATH.',
+    },
+    javac: {
+        default: 'Install a JDK and make sure javac is available on PATH.',
+    },
+    java: {
+        default: 'Install a JDK or JRE and make sure java is available on PATH.',
+    },
+    python: {
+        default: 'Install Python and make sure python is available on PATH.',
+    },
+    python3: {
+        default: 'Install Python 3 and make sure python3 is available on PATH.',
+    },
+    node: {
+        default: 'Install Node.js and make sure node is available on PATH.',
+    },
+};
+
+function missingToolMessage(command, code = 'ENOENT') {
+    const key = path.basename(command).toLowerCase().replace(/\.exe$/, '');
+    const hints = missingToolHints[key];
+    const hint = hints?.[os.platform()] || hints?.default || `Install ${command} and make sure it is available on PATH.`;
+    const problem = code === 'EPERM' ? 'could not be started' : 'not found';
+    return `${command} ${problem}. ${hint}`;
+}
+
+function normalizeSpawnError(err, command) {
+    return err?.code === 'ENOENT' || err?.code === 'EPERM'
+        ? new Error(missingToolMessage(command, err.code))
+        : err;
+}
+
+function withToolchainPath(options = {}) {
+    if (os.platform() !== 'win32' || windowsToolchainDirs.length === 0) {
+        return options;
+    }
+
+    const env = { ...process.env, ...(options.env || {}) };
+    const currentPath = env.Path || env.PATH || '';
+    const pathValue = [...windowsToolchainDirs, currentPath].filter(Boolean).join(path.delimiter);
+
+    env.Path = pathValue;
+    env.PATH = pathValue;
+
+    return { ...options, env };
+}
+
+function spawnProcess(command, args, options) {
+    try {
+        return spawn(command, args, withToolchainPath(options));
+    } catch (err) {
+        throw normalizeSpawnError(err, command);
+    }
+}
 
 /**
  * Safely decode base64 content to UTF-8 string.
@@ -105,9 +212,8 @@ export const executeInteractive = async (data, socket) => {
                 let compileCmd, compileArgs;
 
                 if (lang.ext === 'java') {
-                    const cp = os.platform() === 'win32' ? '.' : '.';
-                    compileCmd = 'javac';
-                    compileArgs = ['-cp', cp, '-d', '.', '*.java'];
+                    compileCmd = lang.compile;
+                    compileArgs = [];
                     // javac doesn't support glob on all platforms, list files instead
                 } else if (lang.ext === 'cpp') {
                     compileCmd = lang.compile;
@@ -123,7 +229,7 @@ export const executeInteractive = async (data, socket) => {
                     fs.readdir(tmpPath).then(dirFiles => {
                         const javaFiles = dirFiles.filter(f => f.endsWith('.java'));
                         const cp = os.platform() === 'win32' ? '.' : '.';
-                        const compileProcess = spawn('javac', ['-cp', cp, ...javaFiles], {
+                        const compileProcess = spawnProcess(compileCmd, ['-cp', cp, ...javaFiles], {
                             cwd: tmpPath,
                             shell: false,
                         });
@@ -135,11 +241,7 @@ export const executeInteractive = async (data, socket) => {
                         compileProcess.stderr.on('data', (d) => { stderrBuf += d.toString(); });
 
                         compileProcess.on('error', (err) => {
-                            if (err.code === 'ENOENT') {
-                                reject(new Error(`${compileCmd} not found. Ensure the compiler is installed on the server.`));
-                            } else {
-                                reject(err);
-                            }
+                            reject(normalizeSpawnError(err, compileCmd));
                         });
 
                         compileProcess.on('close', (code) => {
@@ -149,7 +251,7 @@ export const executeInteractive = async (data, socket) => {
                         });
                     }).catch(reject);
                 } else {
-                    const compileProcess = spawn(compileCmd, compileArgs, {
+                    const compileProcess = spawnProcess(compileCmd, compileArgs, {
                         cwd: tmpPath,
                         shell: false,
                     });
@@ -160,11 +262,7 @@ export const executeInteractive = async (data, socket) => {
                     compileProcess.stderr.on('data', (d) => { stderrBuf += d.toString(); });
 
                     compileProcess.on('error', (err) => {
-                        if (err.code === 'ENOENT') {
-                            reject(new Error(`${compileCmd} not found. Ensure the compiler is installed on the server.`));
-                        } else {
-                            reject(err);
-                        }
+                        reject(normalizeSpawnError(err, compileCmd));
                     });
 
                     compileProcess.on('close', (code) => {
@@ -191,7 +289,7 @@ export const executeInteractive = async (data, socket) => {
     let runnerCmd, runnerArgs;
 
     if (lang.ext === 'java') {
-        runnerCmd = 'java';
+        runnerCmd = lang.runner;
         runnerArgs = ['-cp', '.', className];
     } else if (lang.ext === 'cpp' || lang.ext === 'c') {
         runnerCmd = os.platform() === 'win32' ? path.join(tmpPath, 'output.exe') : './output';
@@ -201,11 +299,21 @@ export const executeInteractive = async (data, socket) => {
         runnerArgs = lang.args(runFile);
     }
 
-    const child = spawn(runnerCmd, runnerArgs, {
-        cwd: tmpPath,
-        shell: false,
-        env: { ...process.env, PYTHONUNBUFFERED: '1' },
-    });
+    let child;
+    try {
+        child = spawnProcess(runnerCmd, runnerArgs, {
+            cwd: tmpPath,
+            shell: false,
+            env: { ...process.env, PYTHONUNBUFFERED: '1' },
+        });
+    } catch (err) {
+        socket.emit('terminal_error', err.message + '\n');
+        socket.emit('execution_complete', calculateStats({
+            status: { id: 13, description: 'Internal Error' }
+        }, startTime));
+        fs.rm(tmpPath, { recursive: true, force: true }).catch(() => {});
+        return null;
+    }
 
     // 30-second execution timeout
     const timeout = setTimeout(() => {
@@ -223,8 +331,8 @@ export const executeInteractive = async (data, socket) => {
 
     child.on('error', (err) => {
         clearTimeout(timeout);
-        if (err.code === 'ENOENT') {
-            socket.emit('terminal_error', `Error: ${runnerCmd} not found. Ensure the runtime is installed on the server.\n`);
+        if (err.code === 'ENOENT' || err.code === 'EPERM') {
+            socket.emit('terminal_error', `Error: ${missingToolMessage(runnerCmd, err.code)}\n`);
         } else {
             socket.emit('terminal_error', err.message + '\n');
         }
@@ -288,7 +396,7 @@ export const executeCodeLocally = async ({ files, main_file, language_id, stdin 
                 let compileCmd, compileArgs;
 
                 if (lang.ext === 'java') {
-                    compileCmd = 'javac';
+                    compileCmd = lang.compile;
                     compileArgs = [];
                 } else if (lang.ext === 'cpp') {
                     compileCmd = lang.compile;
@@ -302,17 +410,17 @@ export const executeCodeLocally = async ({ files, main_file, language_id, stdin 
                 if (lang.ext === 'java') {
                     fs.readdir(tmpPath).then(dirFiles => {
                         const javaFiles = dirFiles.filter(f => f.endsWith('.java'));
-                        const proc = spawn('javac', ['-cp', '.', ...javaFiles], { cwd: tmpPath });
+                        const proc = spawnProcess(compileCmd, ['-cp', '.', ...javaFiles], { cwd: tmpPath });
                         let stderr = '';
                         proc.stderr.on('data', d => { stderr += d.toString(); });
-                        proc.on('error', reject);
+                        proc.on('error', err => reject(normalizeSpawnError(err, compileCmd)));
                         proc.on('close', code => code === 0 ? resolve() : reject(new Error(stderr)));
                     }).catch(reject);
                 } else {
-                    const proc = spawn(compileCmd, compileArgs, { cwd: tmpPath });
+                    const proc = spawnProcess(compileCmd, compileArgs, { cwd: tmpPath });
                     let stderr = '';
                     proc.stderr.on('data', d => { stderr += d.toString(); });
-                    proc.on('error', reject);
+                    proc.on('error', err => reject(normalizeSpawnError(err, compileCmd)));
                     proc.on('close', code => code === 0 ? resolve() : reject(new Error(stderr)));
                 }
             });
@@ -329,7 +437,7 @@ export const executeCodeLocally = async ({ files, main_file, language_id, stdin 
     // Run
     let runnerCmd, runnerArgs;
     if (lang.ext === 'java') {
-        runnerCmd = 'java';
+        runnerCmd = lang.runner;
         runnerArgs = ['-cp', '.', className];
     } else if (lang.ext === 'cpp' || lang.ext === 'c') {
         runnerCmd = os.platform() === 'win32' ? path.join(tmpPath, 'output.exe') : './output';
@@ -343,11 +451,21 @@ export const executeCodeLocally = async ({ files, main_file, language_id, stdin 
     const stdinStr = decodeBase64(stdin || '');
 
     return new Promise((resolve) => {
-        const child = spawn(runnerCmd, runnerArgs, {
-            cwd: tmpPath,
-            shell: false,
-            env: { ...process.env, PYTHONUNBUFFERED: '1' },
-        });
+        let child;
+        try {
+            child = spawnProcess(runnerCmd, runnerArgs, {
+                cwd: tmpPath,
+                shell: false,
+                env: { ...process.env, PYTHONUNBUFFERED: '1' },
+            });
+        } catch (err) {
+            resolve(calculateStats({
+                stdout: '', stderr: err.message, compile_output: '',
+                status: { id: 13, description: 'Internal Error' }
+            }, startTime));
+            fs.rm(tmpPath, { recursive: true, force: true }).catch(() => {});
+            return;
+        }
 
         let stdout = '', stderr = '';
 
@@ -368,7 +486,7 @@ export const executeCodeLocally = async ({ files, main_file, language_id, stdin 
         child.on('error', (err) => {
             clearTimeout(timeout);
             resolve(calculateStats({
-                stdout: '', stderr: err.message, compile_output: '',
+                stdout: '', stderr: err.code === 'ENOENT' || err.code === 'EPERM' ? missingToolMessage(runnerCmd, err.code) : err.message, compile_output: '',
                 status: { id: 13, description: 'Internal Error' }
             }, startTime));
         });

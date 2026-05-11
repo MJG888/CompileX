@@ -1,9 +1,13 @@
 FROM node:20-slim
 
-# Install Java JDK 17 and Python 3
+# Install the runtimes and compilers used by the execution engine.
+# build-essential provides gcc and g++ for C/C++ submissions.
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends openjdk-17-jdk python3 && \
+    apt-get install -y --no-install-recommends build-essential openjdk-17-jdk python3 && \
     rm -rf /var/lib/apt/lists/*
+
+# Fail the image build early if any required tool is missing.
+RUN gcc --version && g++ --version && javac -version && java -version && python3 --version
 
 # Set up the application directory
 WORKDIR /app
