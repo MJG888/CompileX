@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useMemo, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { motion } from 'framer-motion';
 import { HiOutlineMail, HiOutlineLockClosed, HiOutlineEye, HiOutlineEyeOff } from 'react-icons/hi';
+import { getSafeAuthRedirect, withAuthSearch } from './authRedirect';
 import './Auth.css';
 
 const Login = () => {
@@ -14,6 +15,8 @@ const Login = () => {
     
     const { login } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const authRedirect = useMemo(() => getSafeAuthRedirect(location.search), [location.search]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -29,7 +32,7 @@ const Login = () => {
         setIsSubmitting(false);
 
         if (result.success) {
-            navigate('/');
+            navigate(authRedirect, { replace: true });
         } else {
             setFormError(result.error || 'Login failed');
         }
@@ -71,7 +74,7 @@ const Login = () => {
                             <HiOutlineLockClosed className="input-icon" />
                             <input 
                                 type={showPassword ? "text" : "password"} 
-                                placeholder="••••••••"
+                                placeholder="Password"
                                 value={password}
                                 onChange={(e) => { setPassword(e.target.value); setFormError(''); }}
                                 className={formError ? 'input-error' : ''}
@@ -91,7 +94,7 @@ const Login = () => {
 
                     {formError && (
                         <div className="form-error">
-                            <span>⚠</span> {formError}
+                            <span>!</span> {formError}
                         </div>
                     )}
 
@@ -105,7 +108,7 @@ const Login = () => {
                 </form>
 
                 <div className="auth-footer">
-                    <p>Don't have an account? <Link to="/signup">Sign up</Link></p>
+                    <p>Don't have an account? <Link to={withAuthSearch('/signup', location.search)}>Sign up</Link></p>
                 </div>
             </motion.div>
         </div>

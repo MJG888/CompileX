@@ -5,11 +5,11 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
-    background: #0f172a;
-    background-image: 
-        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-        radial-gradient(at 50% 0%, hsla(225,39%,30%,0.4) 0, transparent 50%), 
-        radial-gradient(at 100% 0%, hsla(339,49%,30%,0.3) 0, transparent 50%);
+    background:
+        radial-gradient(circle at 0% 0%, var(--accent-dim) 0, transparent 34rem),
+        radial-gradient(circle at 100% 0%, var(--teal-dim) 0, transparent 32rem),
+        var(--bg);
+    color: var(--text-primary);
     overflow-y: auto;
 }
 
@@ -17,12 +17,12 @@
     width: 100%;
     max-width: 440px; /* Slightly wider but strictly capped */
     padding: 40px;
-    background: rgba(30, 41, 59, 0.7);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--surface-glass);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border);
     border-radius: 24px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.24);
     margin: auto; /* Ensures centering in flex container */
 }
 
@@ -34,13 +34,13 @@
 .auth-header h1 {
     font-size: 2rem;
     font-weight: 800;
-    color: #fff;
+    color: var(--text-primary);
     margin-bottom: 8px;
     letter-spacing: -0.025em;
 }
 
 .auth-header p {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-secondary);
     font-size: 0.95rem;
 }
 
@@ -53,7 +53,7 @@
     margin-bottom: 8px;
     font-size: 0.85rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
@@ -67,7 +67,7 @@
 .input-icon {
     position: absolute;
     left: 16px;
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--text-muted);
     font-size: 1.25rem;
     pointer-events: none;
 }
@@ -75,19 +75,19 @@
 .input-wrapper input {
     width: 100%;
     padding: 14px 16px 14px 48px;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    background: var(--surface-2);
+    border: 1.5px solid var(--border);
     border-radius: 12px;
-    color: #fff;
+    color: var(--text-primary);
     font-size: 1rem;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .input-wrapper input:focus {
     outline: none;
-    background: rgba(15, 23, 42, 0.8);
-    border-color: #6366f1;
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+    background: var(--surface);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-dim);
 }
 
 .toggle-password {
@@ -95,7 +95,7 @@
     right: 12px;
     background: none;
     border: none;
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--text-muted);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -104,14 +104,14 @@
 }
 
 .toggle-password:hover {
-    color: #fff;
+    color: var(--text-primary);
 }
 
 .auth-submit-btn {
     width: 100%;
     padding: 14px;
     margin-top: 12px;
-    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    background: var(--run-btn-bg);
     border: none;
     border-radius: 12px;
     color: #fff;
@@ -119,12 +119,12 @@
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 12px var(--run-btn-shadow);
 }
 
 .auth-submit-btn:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 8px 20px var(--run-btn-hover-shadow);
     filter: brightness(1.1);
 }
 
@@ -141,18 +141,18 @@
     margin-top: 24px;
     text-align: center;
     font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-muted);
 }
 
 .auth-footer a {
-    color: #818cf8;
+    color: var(--accent);
     text-decoration: none;
     font-weight: 700;
     margin-left: 4px;
 }
 
 .auth-footer a:hover {
-    color: #a5b4fc;
+    color: var(--accent-light);
     text-decoration: underline;
 }
 
@@ -196,12 +196,7 @@
 input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus {
-    -webkit-text-fill-color: #fff;
-    -webkit-box-shadow: 0 0 0px 1000px rgba(15, 23, 42, 1) inset;
+    -webkit-text-fill-color: var(--text-primary);
+    -webkit-box-shadow: 0 0 0px 1000px var(--surface-2) inset;
     transition: background-color 5000s ease-in-out 0s;
-}
-
-[data-theme='light'] input:-webkit-autofill {
-    -webkit-text-fill-color: #1e293b;
-    -webkit-box-shadow: 0 0 0px 1000px #f1f5f9 inset;
 }

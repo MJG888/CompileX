@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import {
   HiOutlineChevronDown,
   HiOutlineClock,
@@ -8,7 +9,6 @@ import {
   HiOutlineGlobeAlt,
   HiOutlineLightningBolt,
   HiOutlineMail,
-  HiOutlineMoon,
   HiOutlinePlay,
   HiOutlinePlus,
   HiOutlineShare,
@@ -23,6 +23,9 @@ const navItems = [
   { label: 'Playground', href: '#playground' },
   { label: 'Docs', href: '#docs' },
 ];
+
+const AI_AUTH_PATH = '/login?redirect=/compiler&ai=1';
+const AI_COMPILER_PATH = '/compiler?ai=1';
 
 const languages = [
   { name: 'Python', speed: 'Ready in 0.12s', accent: 'coral', snippet: 'print("focus")' },
@@ -46,10 +49,12 @@ const features = [
     tone: 'lavender',
   },
   {
-    title: 'Dark mode',
-    text: 'Switch to a softer low-light workspace whenever your eyes need quiet.',
-    icon: HiOutlineMoon,
+    title: 'AI Assistant',
+    text: 'Get guided help for generating, debugging, explaining, and improving code after signing in.',
+    icon: HiOutlineSparkles,
     tone: 'sage',
+    href: AI_AUTH_PATH,
+    requiresAuth: true,
   },
   {
     title: 'Save code history',
@@ -231,15 +236,23 @@ function LanguageCard({ language }) {
 
 function FeatureCard({ feature, index }) {
   const Icon = feature.icon;
+  const CardTag = feature.href ? Link : 'article';
+  const linkProps = feature.href
+    ? { to: feature.href, 'aria-label': `${feature.title}: ${feature.text}` }
+    : {};
 
   return (
-    <article className={`feature-card tone-${feature.tone} feature-${index + 1}`} data-reveal>
+    <CardTag
+      className={`feature-card tone-${feature.tone} feature-${index + 1} ${feature.href ? 'feature-link-card' : ''}`}
+      data-reveal
+      {...linkProps}
+    >
       <div className="feature-icon">
         <Icon />
       </div>
       <h3>{feature.title}</h3>
       <p>{feature.text}</p>
-    </article>
+    </CardTag>
   );
 }
 
@@ -295,9 +308,11 @@ function FAQItem({ item, open, onToggle }) {
 }
 
 export default function LandingPage() {
+  const { user } = useAuth();
   const [activeFaq, setActiveFaq] = useState(0);
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const aiFeatureHref = user ? AI_COMPILER_PATH : AI_AUTH_PATH;
 
   useRevealOnScroll();
 
@@ -381,11 +396,15 @@ export default function LandingPage() {
           eyebrow="Soft productivity"
           title="All the practical tools, without the noise."
           handwritten="Focus"
-          text="CompileX keeps the essentials close: code, run controls, output, history, and sharing."
+          text="CompileX keeps the essentials close: code, run controls, output, history, sharing, and signed-in AI help."
         />
         <div className="feature-grid">
           {features.map((feature, index) => (
-            <FeatureCard key={feature.title} feature={feature} index={index} />
+            <FeatureCard
+              key={feature.title}
+              feature={feature.requiresAuth ? { ...feature, href: aiFeatureHref } : feature}
+              index={index}
+            />
           ))}
         </div>
       </section>

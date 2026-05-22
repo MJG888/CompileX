@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Toaster, toast } from 'react-hot-toast';
 import axios from 'axios';
 import Navbar from './components/Navbar/Navbar';
@@ -17,6 +17,13 @@ import { io } from 'socket.io-client';
 import './App.css';
 
 const AIPanel = lazy(() => import('./components/AIPanel/AIPanel'));
+const AI_AUTH_PATH = '/login?redirect=/compiler&ai=1';
+
+const shouldOpenAIFromSearch = () => (
+  typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('ai') === '1'
+);
+
+const isMobileViewport = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 
 const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000').replace(/\/$/, '');
 const socket = io(BACKEND_URL, {
@@ -36,7 +43,9 @@ const initialFiles = LANGUAGES.reduce((acc, lang) => {
 // ─── Main Editor Component ───
 const IDE = () => {
   const { themeName } = useTheme();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [selectedLanguage, setSelectedLanguage] = useState(() => localStorage.getItem('compilex_lang') || 'python');
   const [filesByLang, setFilesByLang] = useState(() => {
     const saved = localStorage.getItem('compilex_files');
@@ -57,15 +66,17 @@ const IDE = () => {
   const [isCompiling, setIsCompiling] = useState(false);
   const [isInteractive, setIsInteractive] = useState(false);
   const [stdin, setStdin] = useState('');
-  const [aiPanelOpen, setAIPanelOpen] = useState(false);
+  const [aiPanelOpen, setAIPanelOpen] = useState(shouldOpenAIFromSearch);
   const [backendConnected, setBackendConnected] = useState(false);
   const [verticalSplit, setVerticalSplit] = useState(65);
   const [horizontalSplit, setHorizontalSplit] = useState(28);
-  const [mobileTab, setMobileTab] = useState('output');
+  const [mobileTab, setMobileTab] = useState(() => (
+    shouldOpenAIFromSearch() && isMobileViewport() ? 'ai' : 'output'
+  ));
   const [isResizing, setIsResizing] = useState(false);
   const [isAddingFile, setIsAddingFile] = useState(false);
   const [newFileName, setNewFileName] = useState('');
-  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
+  const [isMobile, setIsMobile] = useState(isMobileViewport);
   
   const isDraggingVertical = useRef(false);
   const isDraggingHorizontal = useRef(false);
@@ -81,9 +92,45 @@ const IDE = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const redirectToAIAuth = useCallback(() => {
+    navigate(AI_AUTH_PATH);
+  }, [navigate]);
+
+  const handleAIToggle = useCallback(() => {
+    if (loading) return;
+    if (!user) {
+      redirectToAIAuth();
+      return;
+    }
+    setAIPanelOpen(o => !o);
+  }, [loading, redirectToAIAuth, user]);
+
+  const handleMobileAI = useCallback(() => {
+    if (loading) return;
+    if (!user) {
+      redirectToAIAuth();
+      return;
+    }
+    setMobileTab('ai');
+    setAIPanelOpen(true);
+  }, [loading, redirectToAIAuth, user]);
+
+  useEffect(() => {
+    if (loading) return;
+
+    const params = new URLSearchParams(location.search);
+    if (params.get('ai') !== '1') return;
+
+    if (!user) {
+      redirectToAIAuth();
+    }
+  }, [loading, location.search, redirectToAIAuth, user]);
+
   const activeLangFiles = filesByLang[selectedLanguage] || [];
   const activeFile = activeLangFiles.find(f => f.name === activeFileName) || activeLangFiles[0];
   const code = activeFile ? activeFile.content : '';
+  const canShowAI = Boolean(user && aiPanelOpen);
+  const effectiveMobileTab = canShowAI || mobileTab !== 'ai' ? mobileTab : 'output';
 
   // ─── Restore from History Logic ───
   useEffect(() => {
@@ -338,8 +385,8 @@ const IDE = () => {
         onRun={handleRun}
         isRunning={isRunning}
         onShare={handleShare}
-        onAIToggle={() => setAIPanelOpen(o => !o)}
-        aiPanelOpen={aiPanelOpen}
+        onAIToggle={handleAIToggle}
+        aiPanelOpen={canShowAI}
         version={APP_VERSION}
         backendConnected={backendConnected}
       />
@@ -363,25 +410,27 @@ const IDE = () => {
 
           <div className="mobile-bottom-section">
             <div className="mobile-tab-bar">
-              <button className={`mobile-tab-btn ${mobileTab === 'output' ? 'active' : ''}`} onClick={() => setMobileTab('output')}>Output</button>
-              <button className={`mobile-tab-btn ${mobileTab === 'input' ? 'active' : ''}`} onClick={() => setMobileTab('input')}>Input</button>
-              <button className={`mobile-tab-btn ${mobileTab === 'ai' ? 'active' : ''}`} onClick={() => { setMobileTab('ai'); setAIPanelOpen(true); }}>AI</button>
+              <button className={`mobile-tab-btn ${effectiveMobileTab === 'output' ? 'active' : ''}`} onClick={() => setMobileTab('output')}>Output</button>
+              <button className={`mobile-tab-btn ${effectiveMobileTab === 'input' ? 'active' : ''}`} onClick={() => setMobileTab('input')}>Input</button>
+              <button className={`mobile-tab-btn ${canShowAI && effectiveMobileTab === 'ai' ? 'active' : ''}`} onClick={handleMobileAI}>AI</button>
             </div>
             <div className="mobile-bottom-content">
-              <div className={`mobile-panel ${mobileTab !== 'ai' ? 'active' : ''}`}>
-                <Console terminalData={terminalData} result={result} isRunning={isRunning} isCompiling={isCompiling} isInteractive={isInteractive} stdin={stdin} onStdinChange={setStdin} onSendInput={handleTerminalInput} onStop={handleStop} mobileForcedTab={mobileTab} />
+              <div className={`mobile-panel ${effectiveMobileTab !== 'ai' ? 'active' : ''}`}>
+                <Console terminalData={terminalData} result={result} isRunning={isRunning} isCompiling={isCompiling} isInteractive={isInteractive} stdin={stdin} onStdinChange={setStdin} onSendInput={handleTerminalInput} onStop={handleStop} mobileForcedTab={effectiveMobileTab} />
               </div>
-              <div className={`mobile-panel ${mobileTab === 'ai' ? 'active' : ''}`}>
-                <Suspense fallback={<div className="ai-loading">Loading AI…</div>}>
-                  <AIPanel isOpen={mobileTab === 'ai'} code={code} files={activeLangFiles} language={selectedLanguage} execError={execError} onInsertCode={setCode} onClose={() => { setAIPanelOpen(false); setMobileTab('output'); }} />
-                </Suspense>
+              <div className={`mobile-panel ${canShowAI && effectiveMobileTab === 'ai' ? 'active' : ''}`}>
+                {canShowAI && (
+                  <Suspense fallback={<div className="ai-loading">Loading AI…</div>}>
+                    <AIPanel isOpen={effectiveMobileTab === 'ai'} code={code} files={activeLangFiles} language={selectedLanguage} execError={execError} onInsertCode={setCode} onClose={() => { setAIPanelOpen(false); setMobileTab('output'); }} />
+                  </Suspense>
+                )}
               </div>
             </div>
           </div>
         </div>
       ) : (
         <div className={`app-body ${isResizing ? 'resizing' : ''}`} ref={bodyRef}>
-          <div className="editor-area" ref={containerRef} style={{ flex: aiPanelOpen ? (100 - horizontalSplit) : 100 }}>
+          <div className="editor-area" ref={containerRef} style={{ flex: canShowAI ? (100 - horizontalSplit) : 100 }}>
             <div className="editor-pane-container" style={{ flex: `0 0 ${verticalSplit}%` }}>
               <div className="file-tabs">
                 {activeLangFiles.map(f => (
@@ -402,9 +451,9 @@ const IDE = () => {
               <Console terminalData={terminalData} result={result} isRunning={isRunning} isCompiling={isCompiling} isInteractive={isInteractive} stdin={stdin} onStdinChange={setStdin} onSendInput={handleTerminalInput} onStop={handleStop} />
             </div>
           </div>
-          {aiPanelOpen && <div className="panel-divider horizontal" onMouseDown={handleHorizontalDividerMouseDown} onTouchStart={handleHorizontalDividerMouseDown}><div className="divider-handle"><span /><span /><span /></div></div>}
-          <div className={`ai-panel-wrapper ${aiPanelOpen ? 'open' : ''}`} style={{ flex: aiPanelOpen ? `0 0 ${horizontalSplit}%` : '0' }}>
-            {aiPanelOpen && <Suspense fallback={<div className="ai-loading">Loading AI…</div>}><AIPanel isOpen={aiPanelOpen} code={code} files={activeLangFiles} language={selectedLanguage} execError={execError} onInsertCode={setCode} onClose={() => setAIPanelOpen(false)} /></Suspense>}
+          {canShowAI && <div className="panel-divider horizontal" onMouseDown={handleHorizontalDividerMouseDown} onTouchStart={handleHorizontalDividerMouseDown}><div className="divider-handle"><span /><span /><span /></div></div>}
+          <div className={`ai-panel-wrapper ${canShowAI ? 'open' : ''}`} style={{ flex: canShowAI ? `0 0 ${horizontalSplit}%` : '0' }}>
+            {canShowAI && <Suspense fallback={<div className="ai-loading">Loading AI…</div>}><AIPanel isOpen={canShowAI} code={code} files={activeLangFiles} language={selectedLanguage} execError={execError} onInsertCode={setCode} onClose={() => setAIPanelOpen(false)} /></Suspense>}
           </div>
         </div>
       )}

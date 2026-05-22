@@ -602,6 +602,7 @@
 }
 
 .feature-card {
+  display: block;
   min-height: 230px;
   padding: 1.25rem;
   border-radius: 2rem;
@@ -618,6 +619,15 @@
 .feature-card:hover {
   transform: translateY(-6px) scale(1.012);
   box-shadow: var(--landing-shadow-hover), var(--landing-shadow);
+}
+
+.feature-link-card {
+  cursor: pointer;
+}
+
+.feature-link-card:focus-visible {
+  outline: 3px solid rgba(217, 121, 116, 0.46);
+  outline-offset: 5px;
 }
 
 @keyframes cardDrift {

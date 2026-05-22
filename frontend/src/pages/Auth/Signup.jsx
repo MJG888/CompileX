@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useMemo, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { motion } from 'framer-motion';
 import { HiOutlineUser, HiOutlineMail, HiOutlineLockClosed, HiOutlineEye, HiOutlineEyeOff } from 'react-icons/hi';
+import { getSafeAuthRedirect, withAuthSearch } from './authRedirect';
 import './Auth.css';
 
 const Signup = () => {
@@ -15,6 +16,8 @@ const Signup = () => {
     
     const { signup } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const authRedirect = useMemo(() => getSafeAuthRedirect(location.search), [location.search]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -35,7 +38,7 @@ const Signup = () => {
         setIsSubmitting(false);
 
         if (result.success) {
-            navigate('/');
+            navigate(authRedirect, { replace: true });
         } else {
             setFormError(result.error || 'Signup failed');
         }
@@ -95,7 +98,7 @@ const Signup = () => {
                             <HiOutlineLockClosed className="input-icon" />
                             <input 
                                 type={showPassword ? "text" : "password"} 
-                                placeholder="••••••••"
+                                placeholder="Password"
                                 value={password}
                                 onChange={(e) => { setPassword(e.target.value); clearError(); }}
                                 className={formError ? 'input-error' : ''}
@@ -116,7 +119,7 @@ const Signup = () => {
 
                     {formError && (
                         <div className="form-error">
-                            <span>⚠</span> {formError}
+                            <span>!</span> {formError}
                         </div>
                     )}
 
@@ -130,7 +133,7 @@ const Signup = () => {
                 </form>
 
                 <div className="auth-footer">
-                    <p>Already have an account? <Link to="/login">Login</Link></p>
+                    <p>Already have an account? <Link to={withAuthSearch('/login', location.search)}>Login</Link></p>
                 </div>
             </motion.div>
         </div>
