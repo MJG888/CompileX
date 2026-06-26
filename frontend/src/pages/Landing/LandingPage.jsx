@@ -507,9 +507,6 @@ export default function LandingPage() {
         <div className="footer-links">
           <a href="#features">Product</a>
           <a href="#languages">Languages</a>
-          <a href="https://github.com/MJG888/CompileX" target="_blank" rel="noreferrer">
-            GitHub
-          </a>
           <a href="#docs">Docs</a>
           <a href="mailto:hello@compilex.dev">Contact</a>
         </div>
